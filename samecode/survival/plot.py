@@ -1,0 +1,714 @@
+import pandas as pd
+import numpy as np 
+import matplotlib.pyplot as plt
+
+from collections import Counter
+from sklearn.metrics import confusion_matrix
+
+from lifelines import KaplanMeierFitter
+from lifelines.plotting import add_at_risk_counts
+from lifelines import CoxPHFitter
+import six 
+import seaborn as sns
+
+import logging
+import sys
+
+logger = logging.getLogger()
+logger.setLevel(logging.ERROR)
+
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.ERROR)
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
+from lifelines import KaplanMeierFitter
+import seaborn as sns
+import matplotlib.pyplot as plt
+from lifelines import CoxPHFitter
+from ..plot.pyplot import subplots
+
+class KMPlot():
+    def __init__(self, data, time, event, label, score, **kwargs):
+        '''
+        data
+        time
+        event
+        label
+        score    
+        '''
+        
+        self.colors = {}
+        
+        self.fit(data, time, event, label, score, **kwargs)
+    
+    def compare(self, ):
+        pass
+    
+    def plot(self, label=None, **kwargs):
+        '''
+        label[optional]: Label(s) to plot
+        linestyle[optional]:  list same dim as labels
+        color[optional]:  list same dim as labels
+        linewidth[optional]: list same dim as labels
+        legend_font_size[optional]: font size for legend
+        legend_labelspacing[optional]: 
+        saturation[optional]
+        label_height_adj: adjust space between labels (y axis)
+        xy_font_size: font size of x and y labels
+        comparisons: make comparisons between two curves [[tar, ref], [io, soc], [D, D+T]]
+        palette: "Paired"
+        template_color: '#7a7974'
+        '''
+        
+        if label == None:
+            plot_labels = self.labels
+        elif type(label) == list:
+            plot_labels = label
+        else:
+            plot_labels = [label]
+            
+        ax = kwargs.get('ax', False)
+        if ax == False:
+            ax = subplots(cols=1, rows=1, w=6, h=4)[0]
+        
+        colors = kwargs.get('color', sns.color_palette(kwargs.get('palette', 'Paired'), desat=kwargs.get('saturation', 0.5)))
+        linestyle = kwargs.get('linestyle', ['-']*len(plot_labels))
+        label_font_size = kwargs.get('label_font_size', 8)
+        xy_font_size = kwargs.get('xy_font_size', 12)
+        label_height_adj = kwargs.get('label_height_adj', 0.05)
+        template_color = kwargs.get('template_color', '#7a7974')
+        
+        if type(colors) == str:
+            colors = [colors]
+        
+        for lx, label_ in enumerate(plot_labels):
+            self.colors[label_] = colors[lx]
+            self.kmfs[label_].plot(
+                ci_show=False, 
+                show_censors=True,
+                color = colors[lx],
+                linestyle = linestyle[lx],
+                linewidth = kwargs.get('linewidth', 2),
+                ax=ax
+            )
+            
+            # median survival time
+            sns.scatterplot(x=[self.kmfs[label_].median_survival_time_], y=[0.5], ax=ax, s=20, color=self.colors[label_], alpha=1.0)
+            # ax.axvline(self.kmfs[label_].median_survival_time_, 0, 0.5, ls = '--', color = '#a19595', lw = 1)
+            ax.plot((0, self.kmfs[label_].median_survival_time_), (0.5, 0.5),  ls = '--', color = '#a19595', lw = 1)
+            ax.text(0, -label_height_adj*lx, self.label_names[label_], weight='bold', size=label_font_size, color=self.colors[label_])
+        
+        # Cox PH Fitters for HR estimation
+        xcompare = {}
+        cx = 0
+        for cx, [tar, ref] in enumerate(kwargs.get('comparisons', [])):
+            x = self.data[self.data.__label__.isin([tar, ref])][[self.time, self.event, '__label__']].copy().reset_index(drop=True)
+            x.__label__.replace(ref, 0, inplace=True)
+            x.__label__.replace(tar, 1, inplace=True)
+            x.__label__ = x.__label__.astype(float)
+            
+            cph = CoxPHFitter().fit(x, duration_col = self.time, event_col = self.event) 
+            cph = cph.summary[['exp(coef)', 'p', 'exp(coef) lower 95%', 'exp(coef) upper 95%']].reset_index().to_dict()
+            cph = {
+                "HR": cph.get('exp(coef)').get(0),
+                "HR_lo": cph.get('exp(coef) lower 95%').get(0),
+                "HR_hi": cph.get('exp(coef) upper 95%').get(0),
+                "P": cph.get('p').get(0),
+            }
+            
+            xcompare[(tar, ref)] = '{} vs {}: HR={:.1f} (CI 95%: {:.1f} - {:.1f}); P-value={:.1e}'.format(tar, ref, cph.get('HR'), cph.get('HR_lo'), cph.get('HR_hi'), cph.get('P') )
+            
+            # ax.plot((0, 2), (-label_height_adj*(lx+cx+2.), -label_height_adj*(lx+cx+2.)),  ls = '-', color = self.colors[tar], lw = 1)
+            # sns.scatterplot(x=(0, 2), y=(-label_height_adj*(lx+cx+2.), -label_height_adj*(lx+cx+2.)),  ls = '-', color = self.colors[ref], lw = 1)
+            ax.text(0, -label_height_adj*(lx+cx+2.), xcompare[(tar, ref)], weight='bold', size=label_font_size, color=self.colors[tar])
+        
+        
+            
+        ax.set_ylim([-label_height_adj*(lx+cx*2.5), 1])
+        ax.set_ylabel(kwargs.get('ylab', 'Survival Probability'), weight='bold', fontsize=xy_font_size, color=template_color)
+        ax.set_xlabel(kwargs.get('xlab', 'Timeline'), weight='bold', fontsize=xy_font_size, color=template_color)
+        ax.tick_params(axis='x', colors=template_color)
+        ax.tick_params(axis='y', colors=template_color)
+        
+        ax.xaxis.set_tick_params(labelsize=xy_font_size-1)
+        ax.yaxis.set_tick_params(labelsize=xy_font_size-1)
+        
+        ax.set_title(kwargs.get('title', ''), fontsize=xy_font_size+2, color=template_color, weight='bold')
+
+        ax.set_yticks(ax.get_yticks()[-6:])
+        
+        for axis in ['bottom','left']:
+            ax.spines[axis].set_linewidth(1.0)
+            ax.spines[axis].set_color(template_color)
+
+        for axis in ['top','right']:
+            ax.spines[axis].set_linewidth(0.0)
+            
+        ax.get_legend().remove()
+        
+    def fit(self, data, time, event, label, score, **kwargs):
+        
+        self.time = time
+        self.event = event
+        self.score = score
+        
+        data = data.copy()
+        if type(label) == str:
+            label = [label]
+            data['__label__'] = data[label].apply(lambda row: '_'.join(row.values.astype(str)), axis=1)
+        else:
+            data['__label__'] = data[label].apply(lambda row: '_'.join(row.values.astype(str)), axis=1)
+
+        kmfs = {}
+        
+        self.labels = set(data.__label__)
+        self.counts = Counter(data.__label__)
+        self.label_names = {}
+        for label in self.labels:
+            kmf = KaplanMeierFitter()
+            ix = data.__label__ == label
+            kmfs[label] = kmf.fit(data[ix][time], data[ix][event], label='{}'.format( label ))
+            
+            lo = list((kmfs[label].confidence_interval_ -  0.5).abs().sort_values('{}_lower_0.95'.format(label)).index)[0]
+            hi = list((kmfs[label].confidence_interval_ -  0.5).abs().sort_values('{}_upper_0.95'.format(label)).index)[0]
+            
+            self.label_names[label] = '{}: N={}; Q2={:.1f} (CI 95%: {:.1f} - {:.1f})'.format(label, self.counts[label], kmfs[label].median_survival_time_, lo, hi)
+            
+            
+        self.data = data[[time, event, score, '__label__']]
+        self.kmfs = kmfs
+        
+
+
+class PlotSurvival:
+
+    '''
+    -----------
+    Input: 
+        data: 
+        time: 
+        censor:
+    -----------
+    Methods:
+
+    -----------
+    Output: 
+     
+    '''
+
+    def __init__(self, data, time, censor):
+        self.OS_AVAL = time
+        self.OS_CNSR = censor
+        self.data_o = data
+        self.kmfs = {}
+        
+    def hazard(self):
+        hrs = []
+        for k in self.kmfs:
+            self.kmfs[k][-1] = ['', '']
+        
+        for tx, target_name in enumerate(self.targets):
+            dfs = []
+            kmf, ix, color, hr = self.kmfs[target_name]
+            
+            if target_name != self.ref:
+                logger.debug((self.ref, target_name))
+                noix = self.kmfs[self.ref][1]
+
+                dfs.append(pd.DataFrame({'E': self.data_o[ix][self.OS_CNSR], 'T': self.data_o[ix][self.OS_AVAL], '{} vs {}'.format(target_name, self.ref): 1}))
+                dfs.append(pd.DataFrame({'E': self.data_o[noix][self.OS_CNSR], 'T': self.data_o[noix][self.OS_AVAL], '{} vs {}'.format(target_name, self.ref): 0}))
+                    
+                df = pd.concat(dfs)
+                logger.debug(df.shape)
+
+                cph = CoxPHFitter().fit(df, 'T', 'E')
+                
+                self.kmfs[target_name][-1]= np.array(cph.summary[['exp(coef)', 'p', 'exp(coef) lower 95%', 'exp(coef) upper 95%']])[0]
+
+                self.cph = cph
+
+                logger.debug(self.kmfs[target_name])
+    
+    def add(self, ix, name=''):
+        kmf = KaplanMeierFitter();
+        self.kmfs[name] =  [kmf.fit(self.data_o[ix][self.OS_AVAL], self.data_o[ix][self.OS_CNSR], label='{}'.format( name )), ix, '', ['', '']]
+    
+    def table(self, axs):
+        survs = [ pd.DataFrame([{"Time": i} for i in axs.get_xticks()]) ]
+        
+        for f in self.plots:
+            counts = []
+            for tick in axs.get_xticks():
+                event_table_slice = (
+                                f[1].event_table.assign(at_risk=lambda x: x.at_risk - x.removed)
+                                .loc[:tick, ["at_risk",]]
+                                .agg({"at_risk": "min",})
+                            )
+                if np.isnan(event_table_slice.at_risk): 
+                    continue
+        
+                counts.extend([{"{}".format(f[0]): int(c)} for c in event_table_slice.loc[["at_risk", ]] ])
+            survs.append(pd.DataFrame(counts))
+
+        survs = pd.concat(survs, axis=1)
+        survs.Time += np.abs(np.min(survs.Time))
+        survs = survs[np.sum(survs.iloc[:, 1:], axis=1) > 0]
+
+        self.counts = np.transpose(survs)
+        self.counts.columns = self.counts.iloc[0, :]
+        self.counts = self.counts.iloc[1:, :]
+        
+    def plot(self, ax, ref='', targets=[], colors=[], line_styles='-', table=True, plot=True, legend=True, linewidth=2, legend_font_size=4, legend_weight='bold', labelspacing=0.1, table_font_size=10, label_font_size=10, bbox=[-0.0,-0.38, 1, 0.2], lbox=[0.05, 0.01]):
+        
+        remove_plot = False
+        if not ax:
+            f, ax = plt.subplots(1, 1, figsize=(4,4))
+            remove_plot = True
+        
+        self.ref = ref
+        self.targets = targets
+        if not targets: self.targets = list(self.kmfs.keys())
+        if not ref: self.ref = targets[0]
+        
+        self.hazard()
+        
+        linest = line_styles
+
+        kmfs = []
+        for ixx,key in enumerate(self.targets):
+            kmf, ix, col, hr = self.kmfs[key]
+            if colors:
+                col = colors[ixx]
+
+            if line_styles != '-':
+                linest = line_styles[ixx]
+
+            if hr[0]:
+                if plot:
+                    label='{} ({})'.format(key, Counter(ix)[1])
+                    label2='HR: {:.2f} [{:.2f} - {:.2f}] P: {:.2e}'.format(hr[0], hr[2], hr[3], hr[1])
+                    t = ax.text(0.0,(ixx*lbox[0]) + lbox[1], label2, color=col, weight=legend_weight, fontsize=legend_font_size, transform=ax.transAxes)
+                    # t.set_bbox(dict(facecolor='white', alpha=0.5, edgecolor='white'))
+                    
+                    kmf.plot(ax=ax, ci_show=False, show_censors=True, color=col, linestyle = linest, linewidth=linewidth, label=label);
+                kmfs.append([key, kmf, ix, col, hr])
+            else:
+                if plot:
+                    label='{} ({})'.format(key, Counter(ix)[1])
+                    kmf.plot(ax=ax, ci_show=False, show_censors=True, color=col, linestyle = linest, label=label, linewidth=linewidth);
+                kmfs.append([key, kmf, ix, col, hr])
+            
+            if plot:
+                ax.set_ylim([0, 1])
+                ax.set_ylabel('Survival Probability', weight='bold', fontsize=label_font_size)
+                ax.set_xlabel('Timeline', weight='bold', fontsize=label_font_size)
+                
+                for axis in ['bottom','left']:
+                    ax.spines[axis].set_linewidth(0.5)
+                    
+                for axis in ['top','right']:
+                    ax.spines[axis].set_linewidth(0.0)
+            
+            if legend: 
+                ax.legend(loc='upper right')
+                ax.legend(labelcolor='linecolor', frameon=False, labelspacing=labelspacing, prop={'size': legend_font_size, 'weight': legend_weight, 'stretch': 1000})
+                
+            else:
+                try:
+                    ax.get_legend().remove()
+                except:
+                    pass
+        
+        self.plots = kmfs
+        self.table(ax)
+        
+        
+
+        if table: 
+            bbox=bbox
+            # pd.plotting.table(ax, self.counts.iloc[:, ], loc='bottom', colLoc='right', rowLoc='right', edges='open', bbox=bbox);
+            
+            mpl_table = ax.table(cellText=self.counts.values.astype(int), bbox=bbox, colLabels=self.counts.columns, rowLabels=self.counts.index, edges='open')
+            
+            mpl_table.auto_set_font_size(False)
+            mpl_table.set_fontsize(table_font_size)
+            
+            row_colors = ['white'] + colors
+            header_columns=0
+            header_color='w'
+            edge_color='w'
+            
+            ax.set_xlim([0, np.max(list(self.counts)) + 5])
+            
+            for k, cell in six.iteritems(mpl_table._cells):
+                
+                cell.set_edgecolor(edge_color)
+                if k[0] == 0 or k[1] < header_columns:
+                    cell.set_text_props(weight='bold', color=row_colors[k[0]])
+                else:
+                    cell.set_text_props(color=row_colors[k[0]])   
+        
+        if remove_plot:
+            plt.close()
+
+class PrettyPlotSurvival:
+
+    '''
+    -----------
+    Input: 
+        data: 
+        time: 
+        censor:
+    -----------
+    Methods:
+
+    -----------
+    Output: 
+     
+    '''
+
+    def __init__(self, data, time, censor):
+        self.OS_AVAL = time
+        self.OS_CNSR = censor
+        self.data_o = data
+        self.kmfs = {}
+        
+    def hazard(self):
+        hrs = []
+        for k in self.kmfs:
+            self.kmfs[k][-1] = ['', '']
+        
+        for tx, target_name in enumerate(self.targets):
+            dfs = []
+            kmf, ix, color, hr = self.kmfs[target_name]
+            
+            if target_name != self.ref:
+                logger.debug((self.ref, target_name))
+                noix = self.kmfs[self.ref][1]
+
+                dfs.append(pd.DataFrame({'E': self.data_o[ix][self.OS_CNSR], 'T': self.data_o[ix][self.OS_AVAL], '{} vs {}'.format(target_name, self.ref): 1}))
+                dfs.append(pd.DataFrame({'E': self.data_o[noix][self.OS_CNSR], 'T': self.data_o[noix][self.OS_AVAL], '{} vs {}'.format(target_name, self.ref): 0}))
+                    
+                df = pd.concat(dfs)
+                logger.debug(df.shape)
+
+                cph = CoxPHFitter().fit(df, 'T', 'E')
+                
+                self.kmfs[target_name][-1]= np.array(cph.summary[['exp(coef)', 'p', 'exp(coef) lower 95%', 'exp(coef) upper 95%']])[0]
+
+                self.cph = cph
+
+                logger.debug(self.kmfs[target_name])
+    
+    def add(self, ix, name=''):
+        kmf = KaplanMeierFitter();
+        self.kmfs[name] =  [kmf.fit(self.data_o[ix][self.OS_AVAL], self.data_o[ix][self.OS_CNSR], label='{}'.format( name )), ix, '', ['', '']]
+    
+    def table(self, axs):
+        survs = [ pd.DataFrame([{"Time": i} for i in axs.get_xticks()]) ]
+        
+        for f in self.plots:
+            counts = []
+            for tick in axs.get_xticks():
+                event_table_slice = (
+                                f[1].event_table.assign(at_risk=lambda x: x.at_risk - x.removed)
+                                .loc[:tick, ["at_risk",]]
+                                .agg({"at_risk": "min",})
+                            )
+                if np.isnan(event_table_slice.at_risk): 
+                    continue
+        
+                counts.extend([{"{}".format(f[0]): int(c)} for c in event_table_slice.loc[["at_risk", ]] ])
+            survs.append(pd.DataFrame(counts))
+
+        survs = pd.concat(survs, axis=1)
+        survs.Time += np.abs(np.min(survs.Time))
+        survs = survs[np.sum(survs.iloc[:, 1:], axis=1) > 0]
+
+        self.counts = np.transpose(survs)
+        self.counts.columns = self.counts.iloc[0, :]
+        self.counts = self.counts.iloc[1:, :]
+        
+    def plot(self, ax, ref='', targets=[], colors=[], line_styles='-', table=False, plot=True, legend=False, linewidth=2, legend_font_size=12, legend_weight='bold', labelspacing=0.1, table_font_size=10, label_font_size=10, bbox=[-0.0,-0.38, 1, 0.2], medians_offset=[0, 0], labels_offset=[0, 0, 0, 0], fill_color='white', fill_alpha=0.1):
+        
+
+        remove_plot = False
+        if not ax:
+            f, ax = plt.subplots(1, 1, figsize=(4,4))
+            remove_plot = True
+        
+        self.ref = ref
+        self.targets = targets
+        if not targets: self.targets = list(self.kmfs.keys())
+        if not ref: self.ref = targets[0]
+        
+        self.hazard()
+        
+        linest = line_styles
+
+        kmfs = []
+        for ixx,key in enumerate(self.targets):
+            kmf, ix, col, hr = self.kmfs[key]
+            if colors:
+                col = colors[ixx]
+
+            if line_styles != '-':
+                linest = line_styles[ixx]
+
+            if hr[0]:
+                if plot:
+                    label='{} (N={})'.format(key, Counter(ix)[1])
+                    label2='HR={:.2f} (95% CI: {:.2f}, {:.2f}); P={:.2e}'.format(hr[0], hr[2], hr[3], hr[1])
+                    # ax.text(0,(ixx*lbox[0]) + lbox[1], label2, color=col, weight=legend_weight, fontsize=legend_font_size, transform=ax.transAxes)
+                    ax.text(0.0, -0.02, label2, color=col, weight=legend_weight, fontsize=legend_font_size, transform=ax.transAxes)
+                    # t.set_bbox(dict(facecolor='white', alpha=0.5, edgecolor='white'))
+                    
+                    kmf.plot(
+                        ax=ax, ci_show=False, show_censors=True, 
+                        color=col, linestyle = linest, linewidth=linewidth, 
+                        label=label
+                    )
+                    
+                    # median survival time 
+                    sns.scatterplot(x=[kmf.median_survival_time_], y=[0.5], ax=ax, s=100, color=col, alpha=1.0)
+                    ax.text(kmf.median_survival_time_ + kmf.median_survival_time_*medians_offset[0], 0.53, '{:.1f}'.format(kmf.median_survival_time_), size=20, weight='bold', color=col)
+                    ax.axvline(kmf.median_survival_time_, 0, 0.5, ls = '--', color = '#a19595', lw = 1)
+                    ax.plot((0, kmf.median_survival_time_), (0.5, 0.5),  ls = '--', color = '#a19595', lw = 1)
+                    
+                    x_, y_ = list(kmf.survival_function_[key].items())[-1]
+                    ax.text(labels_offset[0], labels_offset[1], label, weight='bold', color=col)
+
+                kmfs.append([key, kmf, ix, col, hr])
+            else:
+                if plot:
+                    label='{} (N={})'.format(key, Counter(ix)[1])
+                    
+                    kmf.plot(
+                        ax=ax, ci_show=False, show_censors=True, 
+                        color=col, linestyle = linest, label=label, 
+                        linewidth=linewidth
+                    )
+                    
+                    # median survival time
+                    sns.scatterplot(x=[kmf.median_survival_time_], y=[0.5], ax=ax, s=100, color=col, alpha=1.0)
+                    ax.text(kmf.median_survival_time_ - kmf.median_survival_time_*medians_offset[1], 0.4, '{:.1f}'.format(kmf.median_survival_time_), size=20, weight='bold', color=col)
+                    ax.axvline(kmf.median_survival_time_, 0, 0.5, ls = '--', color = '#a19595', lw = 1)
+                    ax.plot((0, kmf.median_survival_time_), (0.5, 0.5),  ls = '--', color = '#a19595', lw = 1)
+                    
+                    x_, y_ = list(kmf.survival_function_[key].items())[-1]
+                    ax.text(labels_offset[2], labels_offset[3], label, weight='bold', color=col)
+                                        
+                kmfs.append([key, kmf, ix, col, hr])
+            
+            if plot:
+                ax.set_ylim([0, 1])
+                ax.set_ylabel('Survival Probability', weight='bold', fontsize=label_font_size, color='#7a7974')
+                ax.set_xlabel('Timeline', weight='bold', fontsize=label_font_size, color='#7a7974')
+                ax.tick_params(axis='x', colors='#7a7974')
+                ax.tick_params(axis='y', colors='#7a7974')
+                
+                for axis in ['bottom','left']:
+                    ax.spines[axis].set_linewidth(1.0)
+                    ax.spines[axis].set_color('#7a7974')
+                    
+                for axis in ['top','right']:
+                    ax.spines[axis].set_linewidth(0.0)
+            
+            if legend: 
+                ax.legend(loc='upper right')
+                ax.legend(labelcolor='linecolor', frameon=False, labelspacing=labelspacing, prop={'size': legend_font_size, 'weight': legend_weight, 'stretch': 1000})
+                
+            else:
+                try:
+                    ax.get_legend().remove()
+                except:
+                    pass
+        
+        kmf0 = kmfs[0]
+        kmf1 = kmfs[1]
+        dfs = pd.concat([kmf0[1].survival_function_, kmf1[1].survival_function_], axis = 1 )
+        dfs.fillna(method='ffill', inplace=True)
+        
+        ax.fill_between(dfs.index, dfs[kmf0[0]], dfs[kmf1[0]], alpha = fill_alpha, color = fill_color, edgecolor='white')
+
+        ax.set_ylim([-0.1, 1.05])
+
+        self.plots = kmfs
+        self.table(ax)
+        
+        
+
+        if table: 
+            bbox=bbox
+            # pd.plotting.table(ax, self.counts.iloc[:, ], loc='bottom', colLoc='right', rowLoc='right', edges='open', bbox=bbox);
+            
+            mpl_table = ax.table(cellText=self.counts.values.astype(int), bbox=bbox, colLabels=self.counts.columns, rowLabels=self.counts.index, edges='open')
+            
+            mpl_table.auto_set_font_size(False)
+            mpl_table.set_fontsize(table_font_size)
+            
+            row_colors = ['white'] + colors
+            header_columns=0
+            header_color='w'
+            edge_color='w'
+            
+            ax.set_xlim([0, np.max(list(self.counts)) + 5])
+            
+            for k, cell in six.iteritems(mpl_table._cells):
+                
+                cell.set_edgecolor(edge_color)
+                if k[0] == 0 or k[1] < header_columns:
+                    cell.set_text_props(weight='bold', color=row_colors[k[0]])
+                else:
+                    cell.set_text_props(color=row_colors[k[0]])   
+        
+        if remove_plot:
+            plt.close()
+
+def forestplot(perf, figsize=(8, 3), ax=[], hr='hr', hi='', lo='', name='', condition='', cutoff='', target='', reference='', sort_by='hr', xticks=[0.25, 1, 1.5], xlim=[0.25, 1.5]):
+    plt.style.use('default')
+
+    for ix,i in perf.sort_values(sort_by).reset_index(drop=True).iterrows():
+    #     plt.plot([i.CI_Low, i.CI_High], ["{} {}".format(i.Experiment, i.Cutoff), "{} {}".format(i.Experiment, i.Cutoff)], c='black')
+
+        ax.hlines("{} {} {}".format(i[name], i[condition], i[cutoff]), i[lo], i[hi], color='black')
+
+        ax.scatter(i[lo], "{} {} {}".format(i[name], i[condition], i[cutoff]), c='black', marker='|')
+        ax.scatter(i[hi], "{} {} {}".format(i[name], i[condition], i[cutoff]), c='black', marker='|')
+        ax.scatter(i[hr], "{} {} {}".format(i[name], i[condition], i[cutoff]), c='black' if i[hr] <=1 else "#c41829", marker='D', s=50, zorder=100, edgecolors='white')
+
+        ax.axvline(1, color='#000111', zorder=0)
+        ax.set_xlabel('Hazard Ratio', fontweight='bold', fontsize=12)
+
+        ax.text(
+            xlim[1], "{} {} {}".format(i[name], i[condition], i[cutoff]), 
+            "HR: {:.2f} CI: [{:.2f} - {:.2f}] ({})".format(i[hr], i[lo], i[hi], i[name]), 
+            fontsize=8, color='black' if i[hr] < 1 else "#c41829"
+        )
+        
+    ax.set_xticks(xticks)
+    ax.set_xlim(xlim);
+
+    ylim=[-0.5, ix+0.5]
+    ax.set_ylim(ylim)
+
+    ax.spines['left'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.yaxis.set_ticks_position('left')
+    ax.tick_params(axis = "y", which = "both", left = False, right = False)
+    ax.set_yticklabels([])
+
+#### Plot survival for multiple iterations of the data. Training / Testing splits. 
+
+def simple_survival_plot(data, time, event, label, score, **kwargs):
+    
+    kmfs = {}
+
+    for label in label:
+        kmf = KaplanMeierFitter()
+        kmfs[label] = kmf.fit(data[ix][self.OS_AVAL], self.data_o[ix][self.OS_CNSR], label='{}'.format( name )), ix, '', ['', '']
+
+def cox_functions(data, predictor='label', control_arm_label=None, iteration_column=None, time='time', event='event' ):
+    stats = []
+    labels = set(data[predictor])
+    folds = set(data[iteration_column])
+
+    for fold in folds:
+        try:
+            data_ = data[(data[iteration_column] == fold)].reset_index(drop=True).copy()
+            data_['pred__'] = (data_['{}'.format(predictor)] != control_arm_label).astype(np.int)
+
+            cph = CoxPHFitter().fit(data_[[time, event, 'pred__']], time, event)
+            sm = cph.summary[['exp(coef)', 'exp(coef) lower 95%', 'exp(coef) upper 95%', 'p']].reset_index(drop=False)
+            sm.columns = ['cluster', 'hr', 'hr_lo', 'hr_hi', 'pval']
+            
+            for label in labels:
+                sm['prev_{}'.format(label)] = data['prev_{}'.format(label)].mean()
+                
+            stats.append(sm)
+        except:
+            pass
+    
+    return pd.concat(stats)
+
+def kmf_survival_functions(data, predictor='label', iteration_column=None, time='time', event='event'):
+    '''Retrieve all KM survival functions using input data'''
+    
+    labels = set(data[predictor])
+    folds = set(data[iteration_column])
+    survival_functions = {}
+    for label in labels:
+        survival_functions_fold = []
+        for fold in folds:
+            try:
+                data_ = data[(data[iteration_column] == fold) & (data.label == label)].reset_index(drop=True)
+                kmf = KaplanMeierFitter( label=fold ).fit(data_[time], data_[event])
+                survival_functions_fold.append(kmf.survival_function_)
+            except:
+                pass
+        kmfi = pd.concat(survival_functions_fold, axis=1).fillna(method='ffill', inplace=False)
+        kmfi_ci = pd.concat([kmfi.median(axis = 1), kmfi.mean(axis=1), kmfi.quantile([0.025, 0.975], axis = 1).transpose()], axis = 1)
+        kmfi_ci.columns = ['median', 'mean', 'CI95LO','CI95HI']
+        
+        survival_functions[label] = kmfi_ci
+    
+    
+    
+    
+    return survival_functions
+
+def median_plot_survival(kmfs, cox, label='', agg='mean', color='#573411', ax=[], linewidth=2, plot_medians=True, linecolor=None, alpha=0.25, label_font_size=12,hr_font_size=10, hr_label_offset=-0.03, median_time_offset=[0, 0], name_offset=[0, 0]):
+    '''
+    Plot survival for multiple iterations of the data. Training / Testing splits. 
+    '''
+    if linecolor == None:
+        linecolor = color
+    
+    ax.plot(kmfs[label].index, kmfs[label][agg], color = linecolor, linewidth=linewidth)
+    ax.fill_between(kmfs[label].index, kmfs[label]['CI95HI'], kmfs[label]['CI95LO'], alpha = alpha, color = color)
+    
+    
+    # labels
+    cox = cox.mean()
+    hr_label = 'HR={:.2f} (95% CI: {:.2f}, {:.2f}); P={:.2e}'.format(cox.hr, cox.hr_lo, cox.hr_hi, cox.pval)
+    ax.text(0.0, hr_label_offset, hr_label, color='black', weight='bold', fontsize=hr_font_size, transform=ax.transAxes)
+    
+     
+    # medians
+    if plot_medians:
+        if len(list(kmfs[label][kmfs[label][agg] == 0.5].index)) == 0:
+            try:
+                median_time = np.mean([kmfs[label][kmfs[label][agg] > 0.5].iloc[-1].name, kmfs[label][kmfs[label][agg] < 0.5].iloc[0].name])
+            except:
+                median_time = None
+        else:
+            median_time = list(kmfs[label][kmfs[label][agg] == 0.5].index)[0]
+        
+        # median label
+        if not median_time == None:
+            ax.text(median_time + median_time_offset[0], 0.53 + median_time_offset[1], '{:.1f}'.format(median_time), size=20, weight='bold', color=color)
+            ax.axvline(median_time, 0, 0.5, ls = '--', color = '#a19595', lw = 1)
+            sns.scatterplot(x=[median_time], y=[0.5], ax=ax, s=100, color=color, alpha=0.8)
+            ax.plot((-0, median_time), (0.5, 0.5),  ls = '--', color = '#a19595', lw = 1)
+    
+    # name 
+    x_, y_ = list(kmfs[label][agg].items())[-1]
+    ax.text(name_offset[0], name_offset[1], "{} (N={:.0f})".format(label, cox['prev_{}'.format(label)]), weight='bold', color=color)
+    
+    # general aspect
+    ax.set_ylim([-0.12, 1])
+    ax.set_ylabel('Survival Probability', weight='bold', fontsize=label_font_size, color='#7a7974')
+    ax.set_xlabel('Timeline', weight='bold', fontsize=label_font_size, color='#7a7974')
+    ax.tick_params(axis='x', colors='#7a7974')
+    ax.tick_params(axis='y', colors='#7a7974')
+
+    for axis in ['bottom','left']:
+        ax.spines[axis].set_linewidth(1.0)
+        ax.spines[axis].set_color('#7a7974')
+
+    for axis in ['top','right']:
+        ax.spines[axis].set_linewidth(0.0)
+    
