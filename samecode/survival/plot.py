@@ -60,6 +60,7 @@ class KMPlot():
         comparisons: make comparisons between two curves [[tar, ref], [io, soc], [D, D+T]]
         palette: "Paired"
         template_color: '#7a7974'
+        adj_label_loc: 0.1
         '''
         
         if label == None:
@@ -79,6 +80,8 @@ class KMPlot():
         xy_font_size = kwargs.get('xy_font_size', 12)
         label_height_adj = kwargs.get('label_height_adj', 0.05)
         template_color = kwargs.get('template_color', '#7a7974')
+        to_compare = kwargs.get('comparisons', [])
+        adj_label_loc = kwargs.get('adj_label_loc', -0.12 if len(to_compare) == 1 else 0)
         
         if type(colors) == str:
             colors = [colors]
@@ -103,7 +106,7 @@ class KMPlot():
         # Cox PH Fitters for HR estimation
         xcompare = {}
         cx = 0
-        for cx, [tar, ref] in enumerate(kwargs.get('comparisons', [])):
+        for cx, [tar, ref] in enumerate(to_compare):
             x = self.data[self.data.__label__.isin([tar, ref])][[self.time, self.event, '__label__']].copy().reset_index(drop=True)
             x.__label__.replace(ref, 0, inplace=True)
             x.__label__.replace(tar, 1, inplace=True)
@@ -125,8 +128,8 @@ class KMPlot():
             ax.text(0, -label_height_adj*(lx+cx+2.), xcompare[(tar, ref)], weight='bold', size=label_font_size, color=self.colors[tar])
         
         
-            
-        ax.set_ylim([-label_height_adj*(lx+cx*2.5), 1])
+        
+        ax.set_ylim([-label_height_adj*(lx+cx*2.5) + adj_label_loc, 1])
         ax.set_ylabel(kwargs.get('ylab', 'Survival Probability'), weight='bold', fontsize=xy_font_size, color=template_color)
         ax.set_xlabel(kwargs.get('xlab', 'Timeline'), weight='bold', fontsize=xy_font_size, color=template_color)
         ax.tick_params(axis='x', colors=template_color)
