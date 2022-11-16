@@ -10,6 +10,7 @@ from lifelines.plotting import add_at_risk_counts
 from lifelines import CoxPHFitter
 import six 
 import seaborn as sns
+from lifelines.utils import median_survival_times
 
 import logging
 import sys
@@ -45,34 +46,34 @@ def fix_string(s, v, m):
 class KMPlot():
     def __init__(self, data, time, event, label, **kwargs):
         '''
-        data
-        time
-        event
-        label
-        score 
-
         Example: 
 
         axs = subplots(cols=1, rows=1, w=6, h=4)
         KMPlot(data, time=time, event=event, label=['bin_risk', 'Treatment']).plot(
-            ax=axs[0],
+            labels = ['GP_{}'.format('IO'), 'GN_{}'.format('IO'), 'GP_{}'.format('Chemo'), 'GN_{}'.format('Chemo')],
+            ax=axs[1],
             comparisons=[
-                ['GN_{}'.format('IO'), 'GN_{}'.format('Chemo'), 'GN(IO vs Chemo): '], 
                 ['GP_{}'.format('IO'), 'GP_{}'.format('Chemo'), 'GP(IO vs Chemo): '], 
-                ['GP_{}'.format('IO'), 'GN_{}'.format('IO'), 'IO(GN vs GP): '], 
-                ['GP_{}'.format('Chemo'), 'GN_{}'.format('Chemo'), 'Chemo(GN vs GP): ']
+                ['GN_{}'.format('IO'), 'GN_{}'.format('Chemo'), 'GN(IO vs Chemo): '], 
+                ['GP_{}'.format('IO'), 'GN_{}'.format('IO'), 'IO(GP vs GN): '], 
+                ['GP_{}'.format('Chemo'), 'GN_{}'.format('Chemo'), 'Chemo(GP vs GN): ']
             ],
-            saturation=1.0,
-            linewidth=1.5,
-            palette='Paired',
-            template_color = 'black', xy_font_size = 12,
-            title='',
-            hr_color = 'black',
-            x_legend = 0.15, y_legend = 0.95, legend_font_size=12,
-            label_height_adj=0.06,
-            x_hr_legend = 0.0, y_hr_legend = -0.3, hr_font_size=10
+            title='PFS - IO vs Chemo',
         );
-           
+
+        Optional: 
+        
+        saturation=1.0,
+        linewidth=1.5,
+        palette='Paired',
+        template_color = 'black', xy_font_size = 12,
+        hr_color = 'black',
+        x_legend = 0.15, y_legend = 0.95, legend_font_size=10,
+        label_height_adj=0.055,
+        x_hr_legend = 0.0, y_hr_legend = -0.3, hr_font_size=10,
+        
+
+        Contact: gaarangoa
         '''
         
         self.colors = {}
@@ -82,7 +83,7 @@ class KMPlot():
     def compare(self, ):
         pass
     
-    def plot(self, label=None, **kwargs):
+    def plot(self, labels=None, **kwargs):
         '''
         label[optional]: Label(s) to plot
         linestyle[optional]:  list same dim as labels
@@ -104,28 +105,34 @@ class KMPlot():
 
         axs = subplots(cols=1, rows=1, w=6, h=4)
         KMPlot(data, time=time, event=event, label=['bin_risk', 'Treatment']).plot(
-            ax=axs[0],
+            labels = ['GP_{}'.format('IO'), 'GN_{}'.format('IO'), 'GP_{}'.format('Chemo'), 'GN_{}'.format('Chemo')],
+            ax=axs[1],
             comparisons=[
-                ['GN_{}'.format('IO'), 'GN_{}'.format('Chemo'), 'GN(IO vs Chemo): '], 
                 ['GP_{}'.format('IO'), 'GP_{}'.format('Chemo'), 'GP(IO vs Chemo): '], 
-                ['GP_{}'.format('IO'), 'GN_{}'.format('IO'), 'IO(GN vs GP): '], 
-                ['GP_{}'.format('Chemo'), 'GN_{}'.format('Chemo'), 'Chemo(GN vs GP): ']
+                ['GN_{}'.format('IO'), 'GN_{}'.format('Chemo'), 'GN(IO vs Chemo): '], 
+                ['GP_{}'.format('IO'), 'GN_{}'.format('IO'), 'IO(GP vs GN): '], 
+                ['GP_{}'.format('Chemo'), 'GN_{}'.format('Chemo'), 'Chemo(GP vs GN): ']
             ],
-            saturation=1.0,
-            linewidth=1.5,
-            palette='Paired',
-            template_color = 'black', xy_font_size = 12,
-            title='',
-            hr_color = 'black',
-            x_legend = 0.15, y_legend = 0.95, legend_font_size=12,
-            label_height_adj=0.06,
-            x_hr_legend = 0.0, y_hr_legend = -0.3, hr_font_size=10
+            title='PFS - IO vs Chemo',
         );
+
+        Optional: 
+        
+        saturation=1.0,
+        linewidth=1.5,
+        palette='Paired',
+        template_color = 'black', xy_font_size = 12,
+        hr_color = 'black',
+        x_legend = 0.15, y_legend = 0.95, legend_font_size=10,
+        label_height_adj=0.055,
+        x_hr_legend = 0.0, y_hr_legend = -0.3, hr_font_size=10,
+
 
         '''
 
-        plt.rcParams['font.family'] = 'sans-serif'
-        
+        plt.rcParams['font.family'] = kwargs.get('font_family', '')
+        label = labels
+
         if label == None:
             plot_labels = self.labels
         elif type(label) == list:
@@ -138,44 +145,44 @@ class KMPlot():
         if ax == False:
             ax = subplots(cols=1, rows=1, w=6, h=4)[0]
         
-        colors = kwargs.get('color', sns.color_palette(kwargs.get('palette', 'Paired'), desat=kwargs.get('saturation', 0.5)))
+        colors = kwargs.get('colors', sns.color_palette(kwargs.get('palette', 'Paired'), desat=kwargs.get('saturation', 1)))
         linestyle = kwargs.get('linestyle', ['-']*len(plot_labels))
-        label_font_size = kwargs.get('label_font_size', 8)
         xy_font_size = kwargs.get('xy_font_size', 12)
         label_height_adj = kwargs.get('label_height_adj', 0.05)
-        template_color = kwargs.get('template_color', '#7a7974')
+        template_color = kwargs.get('template_color', 'black')
         to_compare = kwargs.get('comparisons', [])
-        adj_label_loc = kwargs.get('adj_label_loc', -0.12 if len(to_compare) == 1 else 0)
-        
         
         if type(colors) == str:
             colors = [colors]
 
-        label_max_l = []
+        label_max_l = [self.label_names_size['__label__']]
         for lx, label_ in enumerate(plot_labels):
             label_max_l.append(self.label_names_size[label_])
             self.colors[label_] = colors[lx]
             self.kmfs[label_].plot(
-                ci_show=False, 
+                ci_show=kwargs.get('ci_show', False), 
                 show_censors=True,
                 color = colors[lx],
                 linestyle = linestyle[lx],
-                linewidth = kwargs.get('linewidth', 2),
+                linewidth = kwargs.get('linewidth', 1.5),
                 ax=ax
             )
             
             # median survival time
-            sns.scatterplot(x=[self.kmfs[label_].median_survival_time_], y=[0.5], ax=ax, s=20, color=self.colors[label_], alpha=1.0)
-            # ax.axvline(self.kmfs[label_].median_survival_time_, 0, 0.5, ls = '--', color = '#a19595', lw = 1)
+            ax.axvline(self.kmfs[label_].median_survival_time_, 0, 0.5, ls = '--', color = self.colors[label_], lw = 1)
             ax.plot((0, self.kmfs[label_].median_survival_time_), (0.5, 0.5),  ls = '--', color = '#a19595', lw = 1)
+            sns.scatterplot(x=[self.kmfs[label_].median_survival_time_], y=[0.5], ax=ax, s=50, color='white', edgecolor=self.colors[label_], alpha=1.0)
+            
+        
+        self.colors['__label__'] = 'black'
 
-        plt.rcParams['font.family'] = 'monospace'
-        x_legend=kwargs.get('x_legend', 0.25)
-        y_legend=kwargs.get('y_legend', 0.8)
+        plt.rcParams['font.family'] = kwargs.get('font_family_labels', 'Roboto Mono for Powerline')
+        x_legend=kwargs.get('x_legend', 0.15)
+        y_legend=kwargs.get('y_legend', 0.95)
         legend_font_size=kwargs.get('legend_font_size', 10)
 
         label_max_l = np.array(label_max_l).max(axis=0)
-        for lx, label_ in enumerate(plot_labels):                
+        for lx, label_ in enumerate(['__label__'] + plot_labels):                
             vx = fix_string(self.label_names_list[label_], self.label_names_size[label_], label_max_l)
 
             ax.annotate(
@@ -197,10 +204,8 @@ class KMPlot():
         # )
 
         # Cox PH Fitters for HR estimation
-        xcompare = []
-        cx = 0
-        hrs = []
-        xinfo = []
+        xcompare = [[('__label__', '__label__'), "\tHR (95% CI)\tP value"]]
+        xinfo = [[len(i) for i in "\tHR (95% CI)\tP value".split('\t')]]
         for cx, item in enumerate(to_compare):
             
             if len(item) == 3:
@@ -226,21 +231,25 @@ class KMPlot():
             # color for HR 
             hr_color = kwargs.get('hr_color', self.colors[tar])
             
-            xinfo_ = '{}\tHR={:.1f}\t(CI 95%: {:.1f} - {:.1f})\tP-value={:.1e}'.format(hr_label, cph.get('HR'), cph.get('HR_lo'), cph.get('HR_hi'), cph.get('P'))
+            # xinfo_ = '{}\tHR={:.2f}\t(CI 95%: {:.2f} - {:.2f})\tP-value={:.2e}'.format(hr_label, cph.get('HR'), cph.get('HR_lo'), cph.get('HR_hi'), cph.get('P'))
+            xinfo_ = '{}\t{:.2f} ({:.2f}-{:.2f})\t{:.2e}'.format(hr_label, cph.get('HR'), cph.get('HR_lo'), cph.get('HR_hi'), cph.get('P'))
             xinfo.append([len(i) for i in xinfo_.split('\t')])
 
             xcompare.append([
                 (tar, ref), xinfo_
             ])
 
-        x_hr_legend=kwargs.get('x_hr_legend', ax.get_xlim()[0])
-        y_hr_legend=kwargs.get('y_hr_legend', -0.5)
+        
+
+        x_hr_legend=kwargs.get('x_hr_legend', 0)
+        y_hr_legend=kwargs.get('y_hr_legend', -0.3)
         hr_font_size=kwargs.get('hr_font_size', 10)
 
         max_values = np.array(xinfo)
         for ix, [k, v] in enumerate(xcompare):
             
             tar, ref = k 
+            if len(xcompare) == 1: continue
             hr_color = kwargs.get('hr_color', self.colors[tar])
             
             vx = fix_string(v, max_values[ix], max_values.max(axis=0))
@@ -252,12 +261,10 @@ class KMPlot():
                 xytext=(x_hr_legend, y_hr_legend - ix*label_height_adj),
                 weight='bold', 
                 size=hr_font_size, 
-                color=hr_color
+                color=hr_color,
             )
 
-        plt.rcParams['font.family'] = 'sans-serif'   
-        
-        
+        plt.rcParams['font.family'] = kwargs.get('font_family', '')   
         
         
         ax.set_ylim([-0.03, 1])
@@ -286,7 +293,7 @@ class KMPlot():
         
         self.time = time
         self.event = event
-        
+
         data = data.copy()
         if type(label) == str:
             label = [label]
@@ -306,13 +313,23 @@ class KMPlot():
             ix = data.__label__ == label
             kmfs[label] = kmf.fit(data[ix][time], data[ix][event], label='{}'.format( label ))
             
-            lo = list((kmfs[label].confidence_interval_ -  0.5).abs().sort_values('{}_lower_0.95'.format(label)).index)[0]
-            hi = list((kmfs[label].confidence_interval_ -  0.5).abs().sort_values('{}_upper_0.95'.format(label)).index)[0]
+            # lo = list((kmfs[label].confidence_interval_ -  0.5).abs().sort_values('{}_lower_0.95'.format(label)).index)[0]
+            # hi = list((kmfs[label].confidence_interval_ -  0.5).abs().sort_values('{}_upper_0.95'.format(label)).index)[0]
+
+            cis = median_survival_times(kmfs[label].confidence_interval_)
+            lo, hi = np.array(cis)[0]
             
             # self.label_names[label] = '{}: N={}; Q2={:.1f}'.format(label, self.counts[label], kmfs[label].median_survival_time_)
-            self.label_names[label] = '{}: N={}; Q2={:.1f} (CI 95% {:.1f} - {:.1f})'.format(label, self.counts[label], kmfs[label].median_survival_time_, lo, hi)
-            self.label_names_list[label] = '{}\tN={}\tQ2={:.1f} (CI 95% {:.1f} - {:.1f})'.format(label, self.counts[label], kmfs[label].median_survival_time_, lo, hi)
+            # self.label_names[label] = '{}: N={}; Q2={:.2f} (CI 95% {:.2f} - {:.2f})'.format(label, self.counts[label], kmfs[label].median_survival_time_, lo, hi)
+            # self.label_names_list[label] = '{}\tN={}\tQ2={:.2f} (CI 95% {:.2f} - {:.2f})'.format(label, self.counts[label], kmfs[label].median_survival_time_, lo, hi)
+
+            self.label_names[label] = '{} {} {:.2f} ({:.2f} - {:.2f})'.format(label, self.counts[label], kmfs[label].median_survival_time_, lo, hi)
+            self.label_names_list[label] = '{}\t{}\t{:.2f} ({:.2f} - {:.2f})'.format(label, self.counts[label], kmfs[label].median_survival_time_, lo, hi)
             self.label_names_size[label] = [len(k) for k in self.label_names_list[label].split('\t')]
+        
+        self.label_names['__label__'] = ['N Median (95%CI)']
+        self.label_names_list['__label__'] = ' \tN\tMedian (95% CI)'
+        self.label_names_size['__label__'] = [len(k) for k in [' ', 'N', 'Median (95%CI)']]
 
         self.data = data[[time, event, '__label__']]
         self.kmfs = kmfs
