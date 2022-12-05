@@ -145,7 +145,7 @@ class KMPlot():
         if ax == False:
             ax = subplots(cols=1, rows=1, w=6, h=4)[0]
         
-        colors = kwargs.get('colors', sns.color_palette(kwargs.get('palette', 'Paired'), desat=kwargs.get('saturation', 1)))
+        colors = kwargs.get('colors', sns.color_palette(kwargs.get('palette', 'Paired'), 100, desat=kwargs.get('saturation', 1)))
         linestyle = kwargs.get('linestyle', ['-']*len(plot_labels))
         xy_font_size = kwargs.get('xy_font_size', 12)
         label_height_adj = kwargs.get('label_height_adj', 0.05)
@@ -192,7 +192,8 @@ class KMPlot():
                 xytext=(x_legend, y_legend -lx*label_height_adj),
                 weight='bold', 
                 size=legend_font_size, 
-                color=self.colors[label_]
+                color=self.colors[label_],
+                # bbox=dict(fc='white', lw=0, alpha=0.3)
             )
 
         # ax.annotate(
@@ -204,8 +205,8 @@ class KMPlot():
         # )
 
         # Cox PH Fitters for HR estimation
-        xcompare = [[('__label__', '__label__'), "\tHR (95% CI)\tP value"]]
-        xinfo = [[len(i) for i in "\tHR (95% CI)\tP value".split('\t')]]
+        xcompare = [[('__label__', '__label__'), "\tHR\t(95% CI)\tP value"]]
+        xinfo = [[len(i) for i in "\tHR\t(95% CI)\tP value".split('\t')]]
         for cx, item in enumerate(to_compare):
             
             if len(item) == 3:
@@ -232,7 +233,7 @@ class KMPlot():
             hr_color = kwargs.get('hr_color', self.colors[tar])
             
             # xinfo_ = '{}\tHR={:.2f}\t(CI 95%: {:.2f} - {:.2f})\tP-value={:.2e}'.format(hr_label, cph.get('HR'), cph.get('HR_lo'), cph.get('HR_hi'), cph.get('P'))
-            xinfo_ = '{}\t{:.2f} ({:.2f}-{:.2f})\t{:.2e}'.format(hr_label, cph.get('HR'), cph.get('HR_lo'), cph.get('HR_hi'), cph.get('P'))
+            xinfo_ = '{}\t{:.2f}\t({:.2f}-{:.2f})\t{:.2e}'.format(hr_label, cph.get('HR'), cph.get('HR_lo'), cph.get('HR_hi'), cph.get('P'))
             xinfo.append([len(i) for i in xinfo_.split('\t')])
 
             xcompare.append([
@@ -262,6 +263,7 @@ class KMPlot():
                 weight='bold', 
                 size=hr_font_size, 
                 color=hr_color,
+                # bbox=dict(fc='white', lw=0, alpha=0.5)
             )
 
         plt.rcParams['font.family'] = kwargs.get('font_family', '')   
@@ -323,13 +325,13 @@ class KMPlot():
             # self.label_names[label] = '{}: N={}; Q2={:.2f} (CI 95% {:.2f} - {:.2f})'.format(label, self.counts[label], kmfs[label].median_survival_time_, lo, hi)
             # self.label_names_list[label] = '{}\tN={}\tQ2={:.2f} (CI 95% {:.2f} - {:.2f})'.format(label, self.counts[label], kmfs[label].median_survival_time_, lo, hi)
 
-            self.label_names[label] = '{} {} {:.2f} ({:.2f} - {:.2f})'.format(label, self.counts[label], kmfs[label].median_survival_time_, lo, hi)
-            self.label_names_list[label] = '{}\t{}\t{:.2f} ({:.2f} - {:.2f})'.format(label, self.counts[label], kmfs[label].median_survival_time_, lo, hi)
+            self.label_names[label] = '{}: {} {:.2f} ({:.2f} - {:.2f})'.format(label, self.counts[label], kmfs[label].median_survival_time_, lo, hi)
+            self.label_names_list[label] = '{}:\t{}\t{:.2f}\t({:.2f} - {:.2f})'.format(label, self.counts[label], kmfs[label].median_survival_time_, lo, hi)
             self.label_names_size[label] = [len(k) for k in self.label_names_list[label].split('\t')]
         
         self.label_names['__label__'] = ['N Median (95%CI)']
-        self.label_names_list['__label__'] = ' \tN\tMedian (95% CI)'
-        self.label_names_size['__label__'] = [len(k) for k in [' ', 'N', 'Median (95%CI)']]
+        self.label_names_list['__label__'] = ' \tN\tMedian\t(95% CI)'
+        self.label_names_size['__label__'] = [len(k) for k in [' ', 'N', 'Median','(95%CI)']]
 
         self.data = data[[time, event, '__label__']]
         self.kmfs = kmfs
