@@ -1,5 +1,5 @@
 from lifelines import CoxPHFitter
-from Collections import Counter
+from collections import Counter
 import pandas as pd
 
 def extract_kmstats(data, features, time, event):
