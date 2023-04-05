@@ -8,9 +8,11 @@ import seaborn as sns
 # from judge.dataset.vendors.GuardantHealth.OMNI import format_OMNI_report
 # from judge.experimental.survival import forestplot
 
+from ..fonts import set_font
 from scipy import stats
 
 def subplots(rows=1, cols=4, w=12, h=4, return_f = False):
+    set_font()
     '''
     axs = subplots(rows=1, cols=4, w=8)
 

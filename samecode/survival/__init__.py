@@ -3,9 +3,15 @@ from collections import Counter
 import pandas as pd
 
 def extract_kmstats(data, features, time, event):
-    '''
-    Extract a table with km statistics on a given set of clusters or features present in the data
-    '''
+    r"""Extract a table with km statistics on a given set of clusters or features present in the data
+
+    Args:
+        data (dataframe): pandas dataframe with the data.
+        features (list): list of features to compute the KM stats.
+        time (str): time column.
+        event (str): event column.
+    """
+
     resc = []
     data_ = data.copy()
     

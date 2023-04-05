@@ -176,7 +176,7 @@ class KMPlot():
         
         self.colors['__label__'] = 'black'
 
-        plt.rcParams['font.family'] = kwargs.get('font_family_labels', 'Roboto Mono for Powerline')
+        # plt.rcParams['font.family'] = kwargs.get('font_family_labels', 'Roboto Mono for Powerline')
         x_legend=kwargs.get('x_legend', 0.15)
         y_legend=kwargs.get('y_legend', 0.95)
         legend_font_size=kwargs.get('legend_font_size', 10)
@@ -266,7 +266,7 @@ class KMPlot():
                 # bbox=dict(fc='white', lw=0, alpha=0.5)
             )
 
-        plt.rcParams['font.family'] = kwargs.get('font_family', '')   
+        # plt.rcParams['font.family'] = kwargs.get('font_family', '')   
         
         
         ax.set_ylim([-0.03, 1])
@@ -721,27 +721,39 @@ class PrettyPlotSurvival:
         if remove_plot:
             plt.close()
 
-def forestplot(perf, figsize=(8, 3), ax=[], hr='hr', hi='', lo='', name='', condition='', cutoff='', target='', reference='', sort_by='hr', xticks=[0.25, 1, 1.5], xlim=[0.25, 1.5]):
-    plt.style.use('default')
+def forestplot(perf, figsize=(8, 3), ax=[], hr='hr', hi='', lo='', name='', condition='', cutoff='', target='', reference='', sort_by='hr', xticks=[0.25, 1, 1.5], xlim=[0.25, 1.5], median_time_fontsize=20, **kwargs):
+    # plt.style.use('default')
+
+    marker = kwargs.get('marker', 'D')
+    s = kwargs.get('marker_s', 80)
+    marker_edgecolor = kwargs.get('marker_edgecolor', '#004489')
+    marker_c = kwargs.get('marker_c', 'white')
 
     for ix,i in perf.sort_values(sort_by).reset_index(drop=True).iterrows():
     #     plt.plot([i.CI_Low, i.CI_High], ["{} {}".format(i.Experiment, i.Cutoff), "{} {}".format(i.Experiment, i.Cutoff)], c='black')
 
-        ax.hlines("{} {} {}".format(i[name], i[condition], i[cutoff]), i[lo], i[hi], color='black' if i[hr] < 1 else "#c41829")
+        ax.hlines("{} {} {}".format(i[name], i[condition], i[cutoff]), i[lo], i[hi], color='black' if i[hr] < 1 else "#D48139")
 
-        ax.scatter(i[lo], "{} {} {}".format(i[name], i[condition], i[cutoff]), c='black' if i[hr] < 1 else "#c41829", marker='|')
-        ax.scatter(i[hi], "{} {} {}".format(i[name], i[condition], i[cutoff]), c='black' if i[hr] < 1 else "#c41829", marker='|')
-        ax.scatter(i[hr], "{} {} {}".format(i[name], i[condition], i[cutoff]), c='black' if i[hr] < 1 else "#c41829", marker='D', s=50, zorder=100, edgecolors='white')
+        ax.scatter(i[lo], "{} {} {}".format(i[name], i[condition], i[cutoff]), c='#004489' if i[hr] < 1 else "#D48139", marker='|')
+        ax.scatter(i[hi], "{} {} {}".format(i[name], i[condition], i[cutoff]), c='#004489' if i[hr] < 1 else "#D48139", marker='|')
+        ax.scatter(i[hr], "{} {} {}".format(i[name], i[condition], i[cutoff]), c=marker_c, marker=marker, s=s, zorder=100, edgecolors=marker_edgecolor if i[hr] < 1 else "#D48139")
 
         ax.axvline(1, color='black', zorder=0)
         ax.set_xlabel('Hazard Ratio', fontweight='normal', fontsize=12)
 
-        ax.text(
-            xlim[1], "{} {} {}".format(i[name], i[condition], i[cutoff]), 
-            "HR: {:.2f} CI: [{:.2f} - {:.2f}] ({})".format(i[hr], i[lo], i[hi], i[name]), 
-            fontsize=8, color='black' if i[hr] < 1 else "#c41829"
-        )
-        
+        try:
+            ax.text(
+                xlim[1], "{} {} {}".format(i[name], i[condition], i[cutoff]), 
+                "HR: {:.2f} CI: [{:.2f} - {:.2f}] ({}) N:({:.0f}, {:.0f})".format(i[hr], i[lo], i[hi], i[name], i['nN'], i['nW']), 
+                fontsize=8, color='#004489' if i[hr] < 1 else "#D48139"
+            )
+        except:
+             ax.text(
+                xlim[1], "{} {} {}".format(i[name], i[condition], i[cutoff]), 
+                "HR: {:.2f} CI: [{:.2f} - {:.2f}] ({})".format(i[hr], i[lo], i[hi], i[name]), 
+                fontsize=8, color='#004489' if i[hr] < 1 else "#D48139"
+            )
+
     ax.set_xticks(xticks)
     ax.set_xlim(xlim);
 
@@ -771,24 +783,28 @@ def cox_functions(data, predictor='label', control_arm_label=None, iteration_col
     folds = set(data[iteration_column])
 
     for fold in folds:
-        try:
+        # try:
             data_ = data[(data[iteration_column] == fold)].reset_index(drop=True).copy()
             
             # Set the control as 0 and the target arm as 1
-            data_['pred__'] = (data_['{}'.format(predictor)] != control_arm_label).astype(np.int)  
+            data_['pred__{}'.format(fold)] = (data_['{}'.format(predictor)] != control_arm_label).astype(np.int)  
 
-            cph = CoxPHFitter().fit(data_[[time, event, 'pred__']], time, event)
+            cph = CoxPHFitter().fit(data_[[time, event, 'pred__{}'.format(fold)]], time, event)
             sm = cph.summary[['exp(coef)', 'exp(coef) lower 95%', 'exp(coef) upper 95%', 'p']].reset_index(drop=False)
             sm.columns = ['cluster', 'hr', 'hr_lo', 'hr_hi', 'pval']
             
+            # for label in labels:
+                # sm['prev_{}'.format(label)] = data['prev_{}'.format(label)].mean()
+            Ns = Counter(data_[predictor])
             for label in labels:
-                sm['prev_{}'.format(label)] = data['prev_{}'.format(label)].mean()
+                sm['N_{}'.format(label)] = Ns[label]
                 
             stats.append(sm)
-        except:
-            pass
+        # except Exception as inst:
+        #     print(inst)
+        #     pass
     
-    return pd.concat(stats)
+    return pd.concat(stats).reset_index(drop=True)
 
 def kmf_survival_functions(data, predictor='label', iteration_column=None, time='time', event='event'):
     '''Retrieve all KM survival functions using input data'''
@@ -800,7 +816,7 @@ def kmf_survival_functions(data, predictor='label', iteration_column=None, time=
         survival_functions_fold = []
         for fold in folds:
             try:
-                data_ = data[(data[iteration_column] == fold) & (data.label == label)].reset_index(drop=True)
+                data_ = data[(data[iteration_column] == fold) & (data[predictor] == label)].reset_index(drop=True)
                 kmf = KaplanMeierFitter( label=fold ).fit(data_[time], data_[event])
                 survival_functions_fold.append(kmf.survival_function_)
             except:
@@ -816,7 +832,7 @@ def kmf_survival_functions(data, predictor='label', iteration_column=None, time=
     
     return survival_functions
 
-def median_plot_survival(kmfs, cox, label='', agg='mean', color='#573411', ax=[], linewidth=2, plot_medians=True, linecolor=None, alpha=0.25, label_font_size=12,hr_font_size=10, hr_label_offset=-0.03, median_time_offset=[0, 0], name_offset=[0, 0]):
+def median_plot_survival(kmfs, cox=[], label='', agg='mean', color='#573411', ax=[], linewidth=2, plot_medians=True, linecolor=None, alpha=0.25, label_font_size=12,hr_font_size=10, hr_label_offset=-0.03, median_time_offset=[0, 0], name_offset=[0, 0], median_time_fontsize=20):
     '''
     Plot survival for multiple iterations of the data. Training / Testing splits. 
     '''
@@ -828,10 +844,11 @@ def median_plot_survival(kmfs, cox, label='', agg='mean', color='#573411', ax=[]
     
     
     # labels
-    cox = cox.mean()
-    hr_label = 'HR={:.2f} (95% CI: {:.2f}, {:.2f}); P={:.2e}'.format(cox.hr, cox.hr_lo, cox.hr_hi, cox.pval)
-    ax.text(0.0, hr_label_offset, hr_label, color='black', weight='bold', fontsize=hr_font_size, transform=ax.transAxes)
-    
+    if cox.shape[0] > 1: 
+        cox = cox.mean()
+        hr_label = 'HR={:.2f} (95% CI: {:.2f}, {:.2f}); P={:.2e}'.format(cox.hr, cox.hr_lo, cox.hr_hi, cox.pval)
+        ax.text(0.0, hr_label_offset, hr_label, color='black', weight='bold', fontsize=hr_font_size, transform=ax.transAxes)
+
      
     # medians
     if plot_medians:
@@ -845,14 +862,17 @@ def median_plot_survival(kmfs, cox, label='', agg='mean', color='#573411', ax=[]
         
         # median label
         if not median_time == None:
-            ax.text(median_time + median_time_offset[0], 0.53 + median_time_offset[1], '{:.1f}'.format(median_time), size=20, weight='bold', color=color)
+            ax.text(median_time + median_time_offset[0], 0.53 + median_time_offset[1], '{:.1f}'.format(median_time), size=median_time_fontsize, weight='bold', color=color)
             ax.axvline(median_time, 0, 0.5, ls = '--', color = '#a19595', lw = 1)
             sns.scatterplot(x=[median_time], y=[0.5], ax=ax, s=100, color=color, alpha=0.8)
             ax.plot((-0, median_time), (0.5, 0.5),  ls = '--', color = '#a19595', lw = 1)
     
     # name 
     x_, y_ = list(kmfs[label][agg].items())[-1]
-    ax.text(name_offset[0], name_offset[1], "{} (N={:.0f})".format(label, cox['prev_{}'.format(label)]), weight='bold', color=color)
+    if cox.shape[0] > 1: 
+        ax.text(name_offset[0], name_offset[1], "{} (N={:.0f})".format(label, cox['N_{}'.format(label)]), weight='bold', color=color)
+    else:
+        ax.text(name_offset[0], name_offset[1], "{}".format(label), weight='bold', color=color)
     
     # general aspect
     ax.set_ylim([-0.12, 1])
