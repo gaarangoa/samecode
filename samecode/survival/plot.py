@@ -130,7 +130,7 @@ class KMPlot():
 
         '''
 
-        plt.rcParams['font.family'] = kwargs.get('font_family', '')
+        
         label = labels
 
         if label == None:
@@ -151,6 +151,8 @@ class KMPlot():
         label_height_adj = kwargs.get('label_height_adj', 0.05)
         template_color = kwargs.get('template_color', 'black')
         to_compare = kwargs.get('comparisons', [])
+        title_weight = kwargs.get('title_weight', 'normal')
+        title_size = kwargs.get('title_size', 14)
         
         if type(colors) == str:
             colors = [colors]
@@ -278,7 +280,7 @@ class KMPlot():
         ax.xaxis.set_tick_params(labelsize=xy_font_size-1)
         ax.yaxis.set_tick_params(labelsize=xy_font_size-1)
         
-        ax.set_title(kwargs.get('title', ''), fontsize=xy_font_size, color=template_color, weight='bold')
+        ax.set_title(kwargs.get('title', ''), fontsize=title_size, color=template_color, weight=title_weight)
 
         ax.set_yticks(ax.get_yticks()[-6:])
         
@@ -721,40 +723,53 @@ class PrettyPlotSurvival:
         if remove_plot:
             plt.close()
 
-def forestplot(perf, figsize=(8, 3), ax=[], hr='hr', hi='', lo='', name='', condition='', cutoff='', target='', reference='', sort_by='hr', xticks=[0.25, 1, 1.5], xlim=[0.25, 1.5], median_time_fontsize=20, **kwargs):
+def forestplot(perf, figsize=(8, 3), ax=[], hr='hr', hi='hr_hi', lo='hr_lo', sort_by='hr', **kwargs):
     # plt.style.use('default')
 
     marker = kwargs.get('marker', 'D')
     s = kwargs.get('marker_s', 80)
     marker_edgecolor = kwargs.get('marker_edgecolor', '#004489')
     marker_c = kwargs.get('marker_c', 'white')
+    label_fontsize = kwargs.get('label_fontsize', 10)
+    table_fontsize = kwargs.get('table_fontsize', 10)
+    xlabel = kwargs.get('xlabel', 'Hazard Ratio')
+    xlim=kwargs.get('xlim', [0.25, 1.5])
+    variable = kwargs.get('variable', 'cluster')
+    xticks=kwargs.get('xticks', None)
+    xticks_labelsize = kwargs.get('xticks_labelsize', 10)
+    N1 = kwargs.get('N1', 'N1')
+    N2 = kwargs.get('N2', 'N2')
+
+    if not xticks:
+        xticks = [ (i/100) for i in range(0, int(100*np.max(perf[hi])), 50)]
 
     for ix,i in perf.sort_values(sort_by).reset_index(drop=True).iterrows():
     #     plt.plot([i.CI_Low, i.CI_High], ["{} {}".format(i.Experiment, i.Cutoff), "{} {}".format(i.Experiment, i.Cutoff)], c='black')
 
-        ax.hlines("{} {} {}".format(i[name], i[condition], i[cutoff]), i[lo], i[hi], color='black' if i[hr] < 1 else "#D48139")
+        ax.hlines("{}".format(i[variable]), i[lo], i[hi], color='black' if i[hr] < 1 else "#D48139")
 
-        ax.scatter(i[lo], "{} {} {}".format(i[name], i[condition], i[cutoff]), c='#004489' if i[hr] < 1 else "#D48139", marker='|')
-        ax.scatter(i[hi], "{} {} {}".format(i[name], i[condition], i[cutoff]), c='#004489' if i[hr] < 1 else "#D48139", marker='|')
-        ax.scatter(i[hr], "{} {} {}".format(i[name], i[condition], i[cutoff]), c=marker_c, marker=marker, s=s, zorder=100, edgecolors=marker_edgecolor if i[hr] < 1 else "#D48139")
+        ax.scatter(i[lo], "{}".format(i[variable]), c='#004489' if i[hr] < 1 else "#D48139", marker='|')
+        ax.scatter(i[hi], "{}".format(i[variable]), c='#004489' if i[hr] < 1 else "#D48139", marker='|')
+        ax.scatter(i[hr], "{}".format(i[variable]), c=marker_c, marker=marker, s=s, zorder=100, edgecolors=marker_edgecolor if i[hr] < 1 else "#D48139")
 
-        ax.axvline(1, color='black', zorder=0)
-        ax.set_xlabel('Hazard Ratio', fontweight='normal', fontsize=12)
+        ax.axvline(1, color='gray', zorder=0, linestyle='--')
+        ax.set_xlabel(xlabel, fontweight='bold', fontsize=label_fontsize)
 
         try:
             ax.text(
-                xlim[1], "{} {} {}".format(i[name], i[condition], i[cutoff]), 
-                "HR: {:.2f} CI: [{:.2f} - {:.2f}] ({}) N:({:.0f}, {:.0f})".format(i[hr], i[lo], i[hi], i[name], i['nN'], i['nW']), 
-                fontsize=8, color='#004489' if i[hr] < 1 else "#D48139"
+                xlim[1], "{}".format(i[variable]), 
+                "HR: {:.2f} CI: [{:.2f} - {:.2f}] ({}) N:({:.0f}, {:.0f})".format(i[hr], i[lo], i[hi], i[variable], i[N1], i[N2]), 
+                fontsize=table_fontsize, color='#004489' if i[hr] < 1 else "#D48139"
             )
         except:
              ax.text(
-                xlim[1], "{} {} {}".format(i[name], i[condition], i[cutoff]), 
-                "HR: {:.2f} CI: [{:.2f} - {:.2f}] ({})".format(i[hr], i[lo], i[hi], i[name]), 
-                fontsize=8, color='#004489' if i[hr] < 1 else "#D48139"
+                xlim[1], "{}".format(i[variable]), 
+                "HR: {:.2f} CI: [{:.2f} - {:.2f}] ({})".format(i[hr], i[lo], i[hi], i[variable]), 
+                fontsize=table_fontsize, color='#004489' if i[hr] < 1 else "#D48139"
             )
 
     ax.set_xticks(xticks)
+    ax.tick_params(axis='x', labelsize=xticks_labelsize)
     ax.set_xlim(xlim);
 
     ylim=[-0.5, ix+0.5]
@@ -777,19 +792,20 @@ def simple_survival_plot(data, time, event, label, score, **kwargs):
         kmf = KaplanMeierFitter()
         kmfs[label] = kmf.fit(data[ix][self.OS_AVAL], self.data_o[ix][self.OS_CNSR], label='{}'.format( name )), ix, '', ['', '']
 
-def cox_functions(data, predictor='label', control_arm_label=None, iteration_column=None, time='time', event='event' ):
+def cox_functions(data, predictor='label', control_arm_label=None, iteration_column=None, time='time', event='event', **kwargs):
     stats = []
     labels = set(data[predictor])
     folds = set(data[iteration_column])
+    prefix = kwargs.get('prefix', 'C')
 
     for fold in folds:
         # try:
             data_ = data[(data[iteration_column] == fold)].reset_index(drop=True).copy()
             
             # Set the control as 0 and the target arm as 1
-            data_['pred__{}'.format(fold)] = (data_['{}'.format(predictor)] != control_arm_label).astype(np.int)  
+            data_['{}: {}'.format(prefix, fold)] = (data_['{}'.format(predictor)] != control_arm_label).astype(np.int)  
 
-            cph = CoxPHFitter().fit(data_[[time, event, 'pred__{}'.format(fold)]], time, event)
+            cph = CoxPHFitter().fit(data_[[time, event, '{}: {}'.format(prefix, fold)]], time, event)
             sm = cph.summary[['exp(coef)', 'exp(coef) lower 95%', 'exp(coef) upper 95%', 'p']].reset_index(drop=False)
             sm.columns = ['cluster', 'hr', 'hr_lo', 'hr_hi', 'pval']
             
