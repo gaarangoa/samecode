@@ -1,5 +1,8 @@
 import mlflow 
 import os
+import yaml
+
+
 
 class Logger():
     def __init__(self, experiment='', run_name='', root='', run_id=''):
@@ -62,14 +65,37 @@ class Logger():
         '''
         Close mlflow and make a copy of the notebook and store it on the mlflow run
         '''
+
         self.child.end_run()
         mlflow.end_run()
 
     def add_note(self, run_id, comment):
         self.child.tracking.MlflowClient().set_tag(run_id, "mlflow.note.content", comment)
 
-    def save(self, name, artifacts):
-        os.system('cp {}/{}.ipynb {}'.format(os.getcwd(), name, artifacts))
+    def save(self, globals, **kwargs):
+        '''
+        globals()
+        name: add name to the history (default source_code_history)
+        artifacts: (default parent_artifacts)
+        '''
+        name = kwargs.get('name', 'source_code_history')
+        artifacts = kwargs.get('artifacts', self.parent_artifacts)
+
+        fo = open('{}/{}.txt'.format(artifacts, name), 'w')
+        for i in globals['In']:
+            try:
+                if i[-1] != '\n': i = i + '\n\n'
+
+                fo.write(
+                    "{}".format(i)
+                )
+            except:
+                pass
+
+        fo.close()
+
+    def dummy(self, ):
+        print(__file__)
 
         
 
