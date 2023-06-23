@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='samecode',
@@ -6,7 +6,7 @@ setup(
     author='Gustavo Arango',
     author_email='',
     description='everyday tools',
-    packages=['samecode'],
+    packages=find_packages(),
     install_requires=[
         # List your module's dependencies here
     ]
