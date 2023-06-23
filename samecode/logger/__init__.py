@@ -2,8 +2,6 @@ import mlflow
 import os
 import yaml
 
-
-
 class Logger():
     def __init__(self, experiment='', run_name='', root='', run_id=''):
         '''
