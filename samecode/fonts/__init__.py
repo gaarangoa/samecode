@@ -2,7 +2,7 @@ import matplotlib
 import matplotlib.font_manager as font_manager
 import matplotlib.pyplot as plt
 
-def set_font(GlobalFont = 'arial'):
+def set_font(GlobalFont = 'arial', **kwargs):
     font_path = '{}/{}.ttf'.format(__file__.replace('__init__.py', ''), GlobalFont)
 
     font_manager.fontManager.addfont(font_path)

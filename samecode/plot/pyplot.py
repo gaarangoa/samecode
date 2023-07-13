@@ -11,16 +11,24 @@ import seaborn as sns
 from ..fonts import set_font
 from scipy import stats
 
-def subplots(rows=1, cols=4, w=12, h=4, return_f = False):
-    set_font()
+def subplots(**kwargs):
     '''
-    axs = subplots(rows=1, cols=4, w=8)
+    axs = subplots(rows=1, cols=4, w=8, h=4)
 
     sns.boxplot(y=performance.loc[1].scalars, ax=axs[0])
     sns.boxplot(y=performance.loc[7].scalars, ax=axs[1])
 
     [ax.set_ylim([0.7, 1]) for ax in axs];
     '''
+    
+    rows = kwargs.get("rows", 1) 
+    cols = kwargs.get("cols", 2) 
+    w = kwargs.get("w", 8)
+    h = kwargs.get("h", 4)
+
+    return_f = kwargs.get("return_f", False)
+    set_font(kwargs.get('font', 'arial'))
+
     f = plt.figure(constrained_layout=True,  figsize=(w, h))
     gs = f.add_gridspec(rows, cols)
     axs = []
@@ -34,7 +42,41 @@ def subplots(rows=1, cols=4, w=12, h=4, return_f = False):
         return f, axs
     else:
         return axs
+
+def skdeplot(df, x, y, ax, **kwargs):
+    points = kwargs.get('points', 100)
+    interval = np.linspace(df[x].min(), df[x].max(), points,endpoint=False)
+    offset = kwargs.get('offset', 0.01)
+    colors = kwargs.get('colors', sns.color_palette('Paired', 100, desat=0.4))
+    alpha = kwargs.get('alpha', 0.5)
     
+    groups = kwargs.get('order', set(df[y]))
+    of_i = offset
+    for ig, group in enumerate(groups):
+
+        kernel = stats.gaussian_kde(df[df[y] == group][x])
+        yval = kernel(interval)
+        yval = (yval - np.min(yval)) / (np.max(yval) - np.min(yval))
+        
+        sns.lineplot(y=yval-offset, x=interval, ax=ax, color='black', zorder=ig)
+        ax.fill_between(interval, np.min(yval)-offset, yval-offset, color=colors[ig], zorder=ig, alpha=alpha, label=group)
+        
+        
+        
+        offset += of_i
+        
+    ax.set_xlabel(x)
+    ax.set_ylabel('')
+    ax.spines['left'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.yaxis.set_ticks_position('left')
+    ax.tick_params(axis = "y", which = "both", left = False, right = False)
+    ax.set_yticklabels([])
+    
+    ax.legend(bbox_to_anchor=(1.0, 1.0))
+     
+
 def dibarplot(x, y, legend='', color='black', title='', ylim=[], figsize=(10, 4), x_label=''):
     '''
     Input is a dataframe with the required data.

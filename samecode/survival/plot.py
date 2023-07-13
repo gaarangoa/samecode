@@ -71,6 +71,7 @@ class KMPlot():
         x_legend = 0.15, y_legend = 0.95, legend_font_size=10,
         label_height_adj=0.055,
         x_hr_legend = 0.0, y_hr_legend = -0.3, hr_font_size=10,
+        show_censor
         
 
         Contact: gaarangoa
@@ -163,7 +164,7 @@ class KMPlot():
             self.colors[label_] = colors[lx]
             self.kmfs[label_].plot(
                 ci_show=kwargs.get('ci_show', False), 
-                show_censors=True,
+                show_censors=kwargs.get("show_censor", True),
                 color = colors[lx],
                 linestyle = linestyle[lx],
                 linewidth = kwargs.get('linewidth', 1.5),
@@ -183,28 +184,21 @@ class KMPlot():
         y_legend=kwargs.get('y_legend', 0.95)
         legend_font_size=kwargs.get('legend_font_size', 10)
 
-        label_max_l = np.array(label_max_l).max(axis=0)
-        for lx, label_ in enumerate(['__label__'] + plot_labels):                
-            vx = fix_string(self.label_names_list[label_], self.label_names_size[label_], label_max_l)
+        if kwargs.get("legend", True):
+            label_max_l = np.array(label_max_l).max(axis=0)
+            for lx, label_ in enumerate(['__label__'] + plot_labels):                
+                vx = fix_string(self.label_names_list[label_], self.label_names_size[label_], label_max_l)
 
-            ax.annotate(
-                vx, 
-                xy=(x_legend, y_legend -lx*label_height_adj), 
-                xycoords='axes fraction', 
-                xytext=(x_legend, y_legend -lx*label_height_adj),
-                weight='bold', 
-                size=legend_font_size, 
-                color=self.colors[label_],
-                # bbox=dict(fc='white', lw=0, alpha=0.3)
-            )
-
-        # ax.annotate(
-        #     '', 
-        #     xy=(-0.01, y_legend -(lx)*label_height_adj), 
-        #     xycoords='axes fraction', 
-        #     xytext=(1, y_legend -(lx)*label_height_adj), 
-        #     arrowprops=dict(arrowstyle="-", color='k'),
-        # )
+                ax.annotate(
+                    vx, 
+                    xy=(x_legend, y_legend -lx*label_height_adj), 
+                    xycoords='axes fraction', 
+                    xytext=(x_legend, y_legend -lx*label_height_adj),
+                    weight=kwargs.get("label_weight", 'bold'), 
+                    size=legend_font_size, 
+                    color=self.colors[label_],
+                    # bbox=dict(fc='white', lw=0, alpha=0.3)
+                )
 
         # Cox PH Fitters for HR estimation
         xcompare = [[('__label__', '__label__'), "\tHR\t(95% CI)\tP value"]]
@@ -723,13 +717,13 @@ class PrettyPlotSurvival:
         if remove_plot:
             plt.close()
 
-def forestplot(perf, figsize=(8, 3), ax=[], hr='hr', hi='hr_hi', lo='hr_lo', sort_by='hr', **kwargs):
+def forestplot(perf, figsize=(8, 3), ax=[], hr='hr', hi='hr_hi', lo='hr_lo', **kwargs):
     # plt.style.use('default')
 
     marker = kwargs.get('marker', 'D')
     s = kwargs.get('marker_s', 80)
-    marker_edgecolor = kwargs.get('marker_edgecolor', '#004489')
-    marker_c = kwargs.get('marker_c', 'white')
+    marker_edgecolor = kwargs.get('marker_edgecolor', '#000000')
+    marker_c = kwargs.get('marker_c', '#000000')
     label_fontsize = kwargs.get('label_fontsize', 10)
     table_fontsize = kwargs.get('table_fontsize', 10)
     xlabel = kwargs.get('xlabel', 'Hazard Ratio')
@@ -739,41 +733,66 @@ def forestplot(perf, figsize=(8, 3), ax=[], hr='hr', hi='hr_hi', lo='hr_lo', sor
     xticks_labelsize = kwargs.get('xticks_labelsize', 10)
     N1 = kwargs.get('N1', 'N1')
     N2 = kwargs.get('N2', 'N2')
+    sort_by = kwargs.get('sortby', False)
+
+    if sort_by:
+        perf.sort_values(sort_by).reset_index(drop=True)
 
     if not xticks:
         xticks = [ (i/100) for i in range(0, int(100*np.max(perf[hi])), 50)]
 
-    for ix,i in perf.sort_values(sort_by).reset_index(drop=True).iterrows():
-    #     plt.plot([i.CI_Low, i.CI_High], ["{} {}".format(i.Experiment, i.Cutoff), "{} {}".format(i.Experiment, i.Cutoff)], c='black')
+    population = kwargs.get('population', None)
+    variables = kwargs.get('variables', set(perf[variable].values) )
+    variable_shapes = {i[0]: i[1] for i in zip(variables, kwargs.get('variable_shapes', [marker]*len(variables)))}
 
-        ax.hlines("{}".format(i[variable]), i[lo], i[hi], color='black' if i[hr] < 1 else "#D48139")
+    populations = kwargs.get('populations', set(perf[population].values) )    
+    population_colors = {i[0]: i[1] for i in zip(populations, kwargs.get('population_colors', ['black']*len(population)))}
 
-        ax.scatter(i[lo], "{}".format(i[variable]), c='#004489' if i[hr] < 1 else "#D48139", marker='|')
-        ax.scatter(i[hi], "{}".format(i[variable]), c='#004489' if i[hr] < 1 else "#D48139", marker='|')
-        ax.scatter(i[hr], "{}".format(i[variable]), c=marker_c, marker=marker, s=s, zorder=100, edgecolors=marker_edgecolor if i[hr] < 1 else "#D48139")
+    group = kwargs.get('group', None)
+    groups = kwargs.get('groups', set(perf[group].values) if group else [np.nan])
 
-        ax.axvline(1, color='gray', zorder=0, linestyle='--')
-        ax.set_xlabel(xlabel, fontweight='bold', fontsize=label_fontsize)
+    ix = 0
+    offset = kwargs.get('offset', 1)
+    offset2 = kwargs.get('offset', 0.2)
+    for gix, gi in enumerate(groups):
+        gix = gix*len(variables) + offset * gix
+        for vix, vi in enumerate(variables):
+            for pix, pi in enumerate(populations):
+                    pix = pix / (len(populations))
+                    marker_edgecolor = population_colors[pi]
+                    shape = variable_shapes[vi]
+                    
+                    i = perf[(perf[variable] == vi) & (perf[population] == pi) & (perf[group] == gi)]
+                    ax.hlines(vix + pix + gix, i[lo], i[hi], color=marker_edgecolor, linewidth=kwargs.get('linewidth', 1))
 
-        try:
-            ax.text(
-                xlim[1], "{}".format(i[variable]), 
-                "HR: {:.2f} CI: [{:.2f} - {:.2f}] ({}) N:({:.0f}, {:.0f})".format(i[hr], i[lo], i[hi], i[variable], i[N1], i[N2]), 
-                fontsize=table_fontsize, color='#004489' if i[hr] < 1 else "#D48139"
-            )
-        except:
-             ax.text(
-                xlim[1], "{}".format(i[variable]), 
-                "HR: {:.2f} CI: [{:.2f} - {:.2f}] ({})".format(i[hr], i[lo], i[hi], i[variable]), 
-                fontsize=table_fontsize, color='#004489' if i[hr] < 1 else "#D48139"
-            )
+                    ax.scatter(i[lo], vix + pix + gix, c=marker_edgecolor , marker='|')
+                    ax.scatter(i[hi], vix + pix + gix, c=marker_edgecolor , marker='|')
+                    ax.scatter(i[hr], vix + pix + gix, c=marker_edgecolor, marker=shape, s=s, zorder=100, edgecolors='white')
+
+                    ax.axvline(1, color='gray', zorder=0, linestyle='--')
+                    ax.set_xlabel(xlabel, fontweight='bold', fontsize=label_fontsize)
+
+                    # try:
+                    #     ax.text(
+                    #         xlim[1], "{}".format(i[variable]), 
+                    #         "HR: {:.2f} CI: [{:.2f} - {:.2f}] ({}) N:({:.0f}, {:.0f})".format(i[hr], i[lo], i[hi], i[variable], i[N1], i[N2]), 
+                    #         fontsize=table_fontsize, color=marker_edgecolor
+                    #     )
+                    # except:
+                    #     ax.text(
+                    #         xlim[1], "{}".format(i[variable]), 
+                    #         "HR: {:.2f} CI: [{:.2f} - {:.2f}] ({})".format(i[hr], i[lo], i[hi], i[variable]), 
+                    #         fontsize=table_fontsize, color=marker_edgecolor
+                    #     )
+
+                    ix+=1
 
     ax.set_xticks(xticks)
     ax.tick_params(axis='x', labelsize=xticks_labelsize)
     ax.set_xlim(xlim);
 
-    ylim=[-0.5, ix+0.5]
-    ax.set_ylim(ylim)
+    # ylim=[-0.25, gix*(vix-1) + 0.5]
+    # ax.set_ylim(ylim)
 
     ax.spines['left'].set_visible(False)
     ax.spines['right'].set_visible(False)
@@ -797,17 +816,17 @@ def cox_functions(data, predictor='label', control_arm_label=None, iteration_col
     labels = set(data[predictor])
     folds = set(data[iteration_column])
     prefix = kwargs.get('prefix', 'C')
-
+    
     for fold in folds:
         # try:
             data_ = data[(data[iteration_column] == fold)].reset_index(drop=True).copy()
             
             # Set the control as 0 and the target arm as 1
-            data_['{}: {}'.format(prefix, fold)] = (data_['{}'.format(predictor)] != control_arm_label).astype(np.int)  
+            data_['{}'.format(fold)] = (data_['{}'.format(predictor)] != control_arm_label).astype(np.int)  
 
-            cph = CoxPHFitter().fit(data_[[time, event, '{}: {}'.format(prefix, fold)]], time, event)
+            cph = CoxPHFitter().fit(data_[[time, event, '{}'.format(fold)]], time, event)
             sm = cph.summary[['exp(coef)', 'exp(coef) lower 95%', 'exp(coef) upper 95%', 'p']].reset_index(drop=False)
-            sm.columns = ['cluster', 'hr', 'hr_lo', 'hr_hi', 'pval']
+            sm.columns = ['Population', 'hr', 'hr_lo', 'hr_hi', 'pval']
             
             # for label in labels:
                 # sm['prev_{}'.format(label)] = data['prev_{}'.format(label)].mean()
