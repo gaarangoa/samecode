@@ -43,14 +43,45 @@ def subplots(**kwargs):
     else:
         return axs
 
+def clear_plot(ax, **kwargs):
+    ax.set_title('')
+    ax.set_ylabel('')
+    ax.spines['left'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax.tick_params(axis = "y", which = "both", left = False, right = False)
+    ax.tick_params(axis = "x", which = "both", left = False, right = False)
+    ax.set_yticklabels([])
+    ax.set_xticklabels([])
+
 def skdeplot(df, x, y, ax, **kwargs):
+
+    '''
+    Usage:
+    ---------------
+    skdeplot(
+        beta_dist, 
+        x='β', 
+        y='group', 
+        ax=axs[0], 
+        offset=0.9,
+        order = ['Original Scores', "Perturbing: " + var2, "Perturbing: " + var1, 'Perturbing: Both'],
+        alpha=1
+    )
+    '''
+    offset2 = kwargs.get('offset', 0)
     points = kwargs.get('points', 100)
-    interval = np.linspace(df[x].min(), df[x].max(), points,endpoint=False)
+    interval = np.linspace(df[x].min() - offset2, df[x].max() + offset2, points, endpoint=True)
     offset = kwargs.get('offset', 0.01)
     colors = kwargs.get('colors', sns.color_palette('Paired', 100, desat=0.4))
     alpha = kwargs.get('alpha', 0.5)
     
+    
     groups = kwargs.get('order', set(df[y]))
+    textures = kwargs.get('textures', ['']*len(groups))
+    edgecolors = kwargs.get('edgecolors', ['black']*len(groups))
+
     of_i = offset
     for ig, group in enumerate(groups):
 
@@ -59,7 +90,7 @@ def skdeplot(df, x, y, ax, **kwargs):
         yval = (yval - np.min(yval)) / (np.max(yval) - np.min(yval))
         
         sns.lineplot(y=yval-offset, x=interval, ax=ax, color='black', zorder=ig)
-        ax.fill_between(interval, np.min(yval)-offset, yval-offset, color=colors[ig], zorder=ig, alpha=alpha, label=group)
+        ax.fill_between(interval, np.min(yval)-offset, yval-offset, facecolor=colors[ig], zorder=ig, alpha=alpha, label=group, hatch=textures[ig], edgecolor=edgecolors[ig])
         
         
         
@@ -75,7 +106,6 @@ def skdeplot(df, x, y, ax, **kwargs):
     ax.set_yticklabels([])
     
     ax.legend(bbox_to_anchor=(1.0, 1.0))
-     
 
 def dibarplot(x, y, legend='', color='black', title='', ylim=[], figsize=(10, 4), x_label=''):
     '''
