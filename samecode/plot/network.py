@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy import stats
 
-def attention_plot(nodes: dict, edges: dict, direction: dict, ax: object, **kwargs):
+def bipartite_graph(left_nodes: dict, right_nodes: dict, edges: dict, direction: dict, ax: object, **kwargs):
     
     '''
     Plot attention map: 
@@ -64,34 +64,49 @@ def attention_plot(nodes: dict, edges: dict, direction: dict, ax: object, **kwar
     label_color = kwargs.get('label_color', 'white')
     edge_color = kwargs.get('edge_color', 'gray')
     
-    nodes = {i: ix for ix, i in enumerate(nodes)}      
-    edges = [[nodes[i], nodes[j], k] for [i, j, k] in edges]
+    left_nodes = {i: ix for ix, i in enumerate(left_nodes)}
+    right_nodes = {i: ix for ix, i in enumerate(right_nodes)}   
+    
+    edges = [[left_nodes[i], right_nodes[j], k, c] for [i, j, k, c] in edges]
     
     rename = kwargs.get('rename', {})
     
     # Add Nodes
-    for node_name, y in nodes.items():
-        y = y / len(nodes)
+    for node_name, y in left_nodes.items():
+        y = y / len(left_nodes)
         fc_color_i = pos_color if direction.get(node_name, 0) > 0 else neg_color
         ec_color_i = fc_color_i
         label_color = 'white'
         if direction.get(node_name, 0) == 0:
             fc_color_i = 'white'
-            ec_color_i = 'black'
+            ec_color_i = 'white'
             label_color = 'black'
         ax.annotate(rename.get(node_name, node_name), (0, y), (0, y), color=label_color, bbox=dict(boxstyle='round,pad=0.2', fc=fc_color_i, ec=ec_color_i), horizontalalignment='right')
+        
+    # Add Nodes
+    for node_name, y in right_nodes.items():
+        y = y / len(left_nodes)
+        fc_color_i = pos_color if direction.get(node_name, 0) > 0 else neg_color
+        ec_color_i = fc_color_i
+        label_color = 'white'
+        if direction.get(node_name, 0) == 0:
+            fc_color_i = 'white'
+            ec_color_i = 'white'
+            label_color = 'black'
         ax.annotate(rename.get(node_name, node_name), (1, y), (1, y), color=label_color, bbox=dict(boxstyle='round,pad=0.2', fc=fc_color_i, ec=ec_color_i),)
 
     # Add edges
     alpha=kwargs.get('alpha', 0.5)
     offset_x = kwargs.get('offset_x', 0.03)
     offset_y = kwargs.get('offset_y', 0.01)
-    for y1, y2, score in edges:
+    for y1, y2, score, ecolor in edges:
+        if ecolor == None:
+            ecolor = edge_color
         ax.annotate(
             '', 
-            xy=(    1-offset_x,  y2/len(nodes) + offset_y), 
-            xytext=(0+offset_x,  y1/len(nodes) + offset_y), 
-            arrowprops= {'arrowstyle': '-', 'color': edge_color, 'linewidth': score, 'alpha': alpha},
+            xy=(    1-offset_x,  y2/len(left_nodes) + offset_y), 
+            xytext=(0+offset_x,  y1/len(left_nodes) + offset_y), 
+            arrowprops= {'arrowstyle': '-', 'color': ecolor, 'linewidth': score, 'alpha': alpha},
         )
         
     ax.set_xticklabels([]);

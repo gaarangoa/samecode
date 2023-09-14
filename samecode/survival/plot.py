@@ -771,21 +771,24 @@ def forestplot(perf, figsize=(8, 3), ax=[], hr='hr', hi='hr_hi', lo='hr_lo', **k
 
                     ax.axvline(1, color='gray', zorder=0, linestyle='--')
                     ax.set_xlabel(xlabel, fontweight='bold', fontsize=label_fontsize)
-
-                    # try:
-                    #     ax.text(
-                    #         xlim[1], "{}".format(i[variable]), 
-                    #         "HR: {:.2f} CI: [{:.2f} - {:.2f}] ({}) N:({:.0f}, {:.0f})".format(i[hr], i[lo], i[hi], i[variable], i[N1], i[N2]), 
-                    #         fontsize=table_fontsize, color=marker_edgecolor
-                    #     )
-                    # except:
-                    #     ax.text(
-                    #         xlim[1], "{}".format(i[variable]), 
-                    #         "HR: {:.2f} CI: [{:.2f} - {:.2f}] ({})".format(i[hr], i[lo], i[hi], i[variable]), 
-                    #         fontsize=table_fontsize, color=marker_edgecolor
-                    #     )
-
                     ix+=1
+                    
+        ax.text(
+            kwargs.get('xlabel_offset', xlim[1]), vix + pix + gix + kwargs.get('ylabel_offset', 0.),
+            gi, 
+            fontsize=kwargs.get('label_fontsize', 10),
+            horizontalalignment=kwargs.get('ylabel_align', 'left')
+        )
+
+
+    # draw legend box
+    variable__names = kwargs.get('variable_names', variables)
+    for vi, variable in enumerate(variables):
+        
+        ax.scatter(kwargs.get('legend_xoffset', xlim[1] / 2), vi, marker=variable_shapes[variable], edgecolors='white', s=s, c='black')
+        ax.text(kwargs.get('legend_xoffset', xlim[1] / 2)+0.1, vi + kwargs.get('legend_yoffset', 0), variable__names[vi], fontsize=kwargs.get('legend_fontsize', 7))
+
+                    
 
     ax.set_xticks(xticks)
     ax.tick_params(axis='x', labelsize=xticks_labelsize)
