@@ -28,6 +28,8 @@ class Logger():
 
         self.parent_artifacts = "{}/{}/{}/artifacts/".format(self.root, self.experiment.experiment_id, self.parent_id)
 
+        self.parent = mlflow
+
 
     def init(self, **kwargs):
         '''
