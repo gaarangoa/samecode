@@ -42,6 +42,40 @@ def fix_string(s, v, m):
     
     return sx
 
+def compute_char_positions_ascii(font_size=12):
+    fig, ax = plt.subplots()
+    ax.axis('off')
+
+    # Define the characters for which we want to compute positions
+    # This example uses lowercase letters; expand the set as needed
+    chars = """ abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~"""
+    
+    positions = {}
+
+    for char in chars:
+        # Add a text annotation for the character
+        text_obj = ax.text(0, 0, char, transform=ax.transAxes, fontsize=font_size)
+        
+        # Draw the figure to make the renderer available
+        fig.canvas.draw()
+        
+        # Get bounding box of the text in axes coordinates
+        bbox = text_obj.get_window_extent().transformed(ax.transAxes.inverted())
+        
+        # Store start and end x-coordinates
+        start_x = bbox.x0
+        end_x = bbox.x1
+        
+        positions[char] = end_x
+        
+        # Remove the text object to plot the next character
+        text_obj.remove()
+
+    plt.close(fig)  # Close the figure
+    return positions
+
+def get_end_position(label, positions):
+    return sum([positions.get(i, 0) for i in label])
 
 class KMPlot():
     def __init__(self, data, time, event, label, **kwargs):
@@ -184,25 +218,40 @@ class KMPlot():
         y_legend=kwargs.get('y_legend', 0.95)
         legend_font_size=kwargs.get('legend_font_size', 10)
 
+        char_positions = compute_char_positions_ascii(font_size=legend_font_size)
+
+        pos = []
+        for label in [i.split('\t') for i in self.label_names_list.values()]:
+            posi = []
+            for i in label:
+                posi.append(get_end_position(i + '__', char_positions))
+            pos.append(posi)
+
+        max_pos = np.max(np.array(pos, dtype=object), axis=0)
+        max_pos = np.cumsum(max_pos)
+        max_pos = [0] + list(max_pos)
+
         if kwargs.get("legend", True):
             label_max_l = np.array(label_max_l).max(axis=0)
             for lx, label_ in enumerate(['__label__'] + plot_labels):                
-                vx = fix_string(self.label_names_list[label_], self.label_names_size[label_], label_max_l)
+                # vrx = fix_string(self.label_names_list[label_], self.label_names_size[label_], label_max_l)
 
-                ax.annotate(
-                    vx, 
-                    xy=(x_legend, y_legend -lx*label_height_adj), 
-                    xycoords='axes fraction', 
-                    xytext=(x_legend, y_legend -lx*label_height_adj),
-                    weight=kwargs.get("label_weight", 'bold'), 
-                    size=legend_font_size, 
-                    color=self.colors[label_],
-                    # bbox=dict(fc='white', lw=0, alpha=0.3)
-                )
+                for lix, vx in enumerate(self.label_names_list[label_].split('\t')):
+                    ax.annotate(
+                        vx, 
+                        xy=(max_pos[lix] + x_legend, y_legend -lx*label_height_adj), 
+                        xycoords='axes fraction', 
+                        xytext=(max_pos[lix] + x_legend, y_legend -lx*label_height_adj),
+                        weight=kwargs.get("label_weight", 'bold'), 
+                        size=legend_font_size, 
+                        color=self.colors[label_],
+                        # bbox=dict(fc='white', lw=0, alpha=0.3)
+                    )
 
         # Cox PH Fitters for HR estimation
         xcompare = [[('__label__', '__label__'), "\tHR\t(95% CI)\tP value"]]
         xinfo = [[len(i) for i in "\tHR\t(95% CI)\tP value".split('\t')]]
+        xinfo_space = []
         for cx, item in enumerate(to_compare):
             
             if len(item) == 3:
@@ -231,12 +280,19 @@ class KMPlot():
             # xinfo_ = '{}\tHR={:.2f}\t(CI 95%: {:.2f} - {:.2f})\tP-value={:.2e}'.format(hr_label, cph.get('HR'), cph.get('HR_lo'), cph.get('HR_hi'), cph.get('P'))
             xinfo_ = '{}\t{:.2f}\t({:.2f}-{:.2f})\t{:.2e}'.format(hr_label, cph.get('HR'), cph.get('HR_lo'), cph.get('HR_hi'), cph.get('P'))
             xinfo.append([len(i) for i in xinfo_.split('\t')])
+            xinfo_space.append(
+                [get_end_position(ii+"_._", char_positions) for ii in xinfo_.split('\t')]
+            )
+
 
             xcompare.append([
                 (tar, ref), xinfo_
             ])
 
         
+        max_pos_hr = np.max(np.array(xinfo_space, dtype=object), axis=0)
+        max_pos_hr = np.cumsum(max_pos_hr)
+        max_pos_hr = [0] + list(max_pos_hr)
 
         x_hr_legend=kwargs.get('x_hr_legend', 0)
         y_hr_legend=kwargs.get('y_hr_legend', -0.3)
@@ -249,18 +305,18 @@ class KMPlot():
             if len(xcompare) == 1: continue
             hr_color = kwargs.get('hr_color', self.colors[tar])
             
-            vx = fix_string(v, max_values[ix], max_values.max(axis=0))
-
-            ax.annotate(
-                vx, 
-                xy=(x_hr_legend, y_hr_legend - ix*label_height_adj), 
-                xycoords='axes fraction', 
-                xytext=(x_hr_legend, y_hr_legend - ix*label_height_adj),
-                weight='bold', 
-                size=hr_font_size, 
-                color=hr_color,
-                # bbox=dict(fc='white', lw=0, alpha=0.5)
-            )
+            # vx = fix_string(v, max_values[ix], max_values.max(axis=0))
+            for lix, vx in enumerate(v.split('\t')):
+                ax.annotate(
+                    vx, 
+                    xy=(x_hr_legend + max_pos_hr[lix], y_hr_legend - ix*label_height_adj), 
+                    xycoords='axes fraction', 
+                    xytext=(x_hr_legend + max_pos_hr[lix], y_hr_legend - ix*label_height_adj),
+                    weight='bold', 
+                    size=hr_font_size, 
+                    color=hr_color,
+                    # bbox=dict(fc='white', lw=0, alpha=0.5)
+                )
 
         # plt.rcParams['font.family'] = kwargs.get('font_family', '')   
         

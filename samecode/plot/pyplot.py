@@ -35,7 +35,7 @@ def subplots(**kwargs):
     for i in range(rows):
         for j in range(cols):
             ax_ = f.add_subplot(gs[i,j])
-            ax_.set_facecolor((1, 1, 1, 0))
+            # ax_.set_facecolor((1, 1, 1, 0))
             axs.append( ax_ )
 
     if return_f:

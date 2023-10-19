@@ -1,3 +1,9 @@
+import numpy as np 
+
+def binx(x, bins):
+    hist, bin_edges = np.histogram(x, bins=bins)
+    return [bin_edges[i-1] for i in np.digitize(x, bin_edges[:-1])]
+
 def split_vector(N, k):
     # Calculate the number of partitions required
     partitions = N // k
