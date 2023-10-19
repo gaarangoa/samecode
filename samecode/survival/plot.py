@@ -289,10 +289,10 @@ class KMPlot():
                 (tar, ref), xinfo_
             ])
 
-        
-        max_pos_hr = np.max(np.array(xinfo_space, dtype=object), axis=0)
-        max_pos_hr = np.cumsum(max_pos_hr)
-        max_pos_hr = [0] + list(max_pos_hr)
+        if xinfo_space != []:
+            max_pos_hr = np.max(np.array(xinfo_space, dtype=object), axis=0)
+            max_pos_hr = np.cumsum(max_pos_hr)
+            max_pos_hr = [0] + list(max_pos_hr)
 
         x_hr_legend=kwargs.get('x_hr_legend', 0)
         y_hr_legend=kwargs.get('y_hr_legend', -0.3)
@@ -377,8 +377,8 @@ class KMPlot():
             # self.label_names[label] = '{}: N={}; Q2={:.2f} (CI 95% {:.2f} - {:.2f})'.format(label, self.counts[label], kmfs[label].median_survival_time_, lo, hi)
             # self.label_names_list[label] = '{}\tN={}\tQ2={:.2f} (CI 95% {:.2f} - {:.2f})'.format(label, self.counts[label], kmfs[label].median_survival_time_, lo, hi)
 
-            self.label_names[label] = '{}: {} {:.2f} ({:.2f} - {:.2f})'.format(label, self.counts[label], kmfs[label].median_survival_time_, lo, hi)
-            self.label_names_list[label] = '{}:\t{}\t{:.2f}\t({:.2f} - {:.2f})'.format(label, self.counts[label], kmfs[label].median_survival_time_, lo, hi)
+            self.label_names[label] = '{}: {} {:.1f} ({:.1f} - {:.1f})'.format(label, self.counts[label], kmfs[label].median_survival_time_, lo, hi)
+            self.label_names_list[label] = '{}:\t{}\t{:.1f}\t({:.1f} - {:.1f})'.format(label, self.counts[label], kmfs[label].median_survival_time_, lo, hi)
             self.label_names_size[label] = [len(k) for k in self.label_names_list[label].split('\t')]
         
         self.label_names['__label__'] = ['N Median (95%CI)']
