@@ -42,6 +42,31 @@ def fix_string(s, v, m):
     
     return sx
 
+def set_template(ax, **kwargs):
+
+    template_color = kwargs.get('template_color', 'black')
+    xy_font_size = kwargs.get('xy_font_size', 10)
+    title_size = kwargs.get('title_size', 12)
+    title_weight = kwargs.get('title_weight', 120)
+
+
+    ax.set_ylabel(kwargs.get('ylabel', ''), weight='bold', fontsize=xy_font_size, color=template_color)
+    ax.set_xlabel(kwargs.get('xlabel', ''), weight='bold', fontsize=xy_font_size, color=template_color)
+    ax.tick_params(axis='x', colors=template_color)
+    ax.tick_params(axis='y', colors=template_color)
+    
+    ax.xaxis.set_tick_params(labelsize=xy_font_size-1)
+    ax.yaxis.set_tick_params(labelsize=xy_font_size-1)
+    
+    ax.set_title(kwargs.get('title', ''), fontsize=title_size, color=template_color, weight=title_weight)
+    
+    for axis in ['bottom','left']:
+        ax.spines[axis].set_linewidth(1.0)
+        ax.spines[axis].set_color(template_color)
+
+    for axis in ['top','right']:
+        ax.spines[axis].set_linewidth(0.0)
+
 def compute_char_positions_ascii(font_size=12):
     fig, ax = plt.subplots()
     ax.axis('off')
@@ -801,7 +826,9 @@ def forestplot(perf, figsize=(8, 3), ax=[], hr='hr', hi='hr_hi', lo='hr_lo', **k
     variables = kwargs.get('variables', set(perf[variable].values) )
     variable_shapes = {i[0]: i[1] for i in zip(variables, kwargs.get('variable_shapes', [marker]*len(variables)))}
 
-    populations = kwargs.get('populations', set(perf[population].values) )    
+    populations = kwargs.get('populations', set(perf[population].values) )
+    population_name = kwargs.get('population_name', None)
+    
     population_colors = {i[0]: i[1] for i in zip(populations, kwargs.get('population_colors', ['black']*len(population)))}
 
     group = kwargs.get('group', None)
@@ -819,6 +846,11 @@ def forestplot(perf, figsize=(8, 3), ax=[], hr='hr', hi='hr_hi', lo='hr_lo', **k
                     shape = variable_shapes[vi]
                     
                     i = perf[(perf[variable] == vi) & (perf[population] == pi) & (perf[group] == gi)]
+
+                    pname = None
+                    if population_name: 
+                        pname = i[population_name]
+
                     ax.hlines(vix + pix + gix, i[lo], i[hi], color=marker_edgecolor, linewidth=kwargs.get('linewidth', 1))
 
                     ax.scatter(i[lo], vix + pix + gix, c=marker_edgecolor , marker='|')
@@ -827,6 +859,9 @@ def forestplot(perf, figsize=(8, 3), ax=[], hr='hr', hi='hr_hi', lo='hr_lo', **k
 
                     ax.axvline(1, color='gray', zorder=0, linestyle='--')
                     ax.set_xlabel(xlabel, fontweight='bold', fontsize=label_fontsize)
+
+                    ax.text(i[lo].values[0], vix+pix+gix+kwargs.get('population_label_offset', 0.1), pname.values[0], fontsize=kwargs.get('population_label_fontsize', 10) - 4)
+
                     ix+=1
                     
         ax.text(
@@ -838,11 +873,11 @@ def forestplot(perf, figsize=(8, 3), ax=[], hr='hr', hi='hr_hi', lo='hr_lo', **k
 
 
     # draw legend box
-    variable__names = kwargs.get('variable_names', variables)
-    for vi, variable in enumerate(variables):
-        
-        ax.scatter(kwargs.get('legend_xoffset', xlim[1] / 2), vi, marker=variable_shapes[variable], edgecolors='white', s=s, c='black')
-        ax.text(kwargs.get('legend_xoffset', xlim[1] / 2)+0.1, vi + kwargs.get('legend_yoffset', 0), variable__names[vi], fontsize=kwargs.get('legend_fontsize', 7))
+    if kwargs.get('legend', False):
+        variable__names = kwargs.get('variable_names', variables)
+        for vi, variable in enumerate(variables):
+            ax.scatter(kwargs.get('legend_xoffset', xlim[1] / 2), vi, marker=variable_shapes[variable], edgecolors='white', s=s, c='black')
+            ax.text(kwargs.get('legend_xoffset', xlim[1] / 2)+0.1, vi + kwargs.get('legend_yoffset', 0), variable__names[vi], fontsize=kwargs.get('legend_fontsize', 7))
 
                     
 
