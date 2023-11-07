@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np 
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 
 from collections import Counter
 from sklearn.metrics import confusion_matrix
@@ -249,7 +250,7 @@ class KMPlot():
         for label in [i.split('\t') for i in self.label_names_list.values()]:
             posi = []
             for i in label:
-                posi.append(get_end_position(i + '__', char_positions))
+                posi.append(get_end_position("_._" + i + '__', char_positions))
             pos.append(posi)
 
         max_pos = np.max(np.array(pos, dtype=object), axis=0)
@@ -267,11 +268,19 @@ class KMPlot():
                         xy=(max_pos[lix] + x_legend, y_legend -lx*label_height_adj), 
                         xycoords='axes fraction', 
                         xytext=(max_pos[lix] + x_legend, y_legend -lx*label_height_adj),
-                        weight=kwargs.get("label_weight", 'bold'), 
+                        weight=kwargs.get("label_weight", 'bold'),
                         size=legend_font_size, 
                         color=self.colors[label_],
-                        # bbox=dict(fc='white', lw=0, alpha=0.3)
+                        bbox=dict(fc='white', lw=0, alpha=0.9, boxstyle='round,pad=0.1')
                     )
+
+        # print(max_pos)
+        # rect=mpatches.Rectangle((0, 0), 1,1, 
+        #                 fill = True,
+        #                 color = "purple",
+        #                 linewidth = 2, zorder=0)
+
+        # ax.add_patch(rect)
 
         # Cox PH Fitters for HR estimation
         xcompare = [[('__label__', '__label__'), "\tHR\t(95% CI)\tP value"]]
@@ -306,7 +315,7 @@ class KMPlot():
             xinfo_ = '{}\t{:.2f}\t({:.2f}-{:.2f})\t{:.2e}'.format(hr_label, cph.get('HR'), cph.get('HR_lo'), cph.get('HR_hi'), cph.get('P'))
             xinfo.append([len(i) for i in xinfo_.split('\t')])
             xinfo_space.append(
-                [get_end_position(ii+"_._", char_positions) for ii in xinfo_.split('\t')]
+                [get_end_position("_"+ii+"_._", char_positions) for ii in xinfo_.split('\t')]
             )
 
 
@@ -340,7 +349,7 @@ class KMPlot():
                     weight='bold', 
                     size=hr_font_size, 
                     color=hr_color,
-                    # bbox=dict(fc='white', lw=0, alpha=0.5)
+                    bbox=dict(fc='white', lw=0, alpha=0.9, boxstyle='round,pad=0.1')
                 )
 
         # plt.rcParams['font.family'] = kwargs.get('font_family', '')   
