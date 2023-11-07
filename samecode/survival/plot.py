@@ -862,14 +862,14 @@ def forestplot(perf, figsize=(8, 3), ax=[], hr='hr', hi='hr_hi', lo='hr_lo', **k
 
                     ax.hlines(vix + pix + gix, i[lo], i[hi], color=marker_edgecolor, linewidth=kwargs.get('linewidth', 1))
 
-                    ax.scatter(i[lo], vix + pix + gix, c=marker_edgecolor , marker='|')
-                    ax.scatter(i[hi], vix + pix + gix, c=marker_edgecolor , marker='|')
+                    ax.scatter(i[lo], vix + pix + gix, c=marker_edgecolor , marker='|', zorder=-1)
+                    ax.scatter(i[hi], vix + pix + gix, c=marker_edgecolor , marker='|', zorder=0)
                     ax.scatter(i[hr], vix + pix + gix, c=marker_edgecolor, marker=shape, s=s, zorder=100, edgecolors='white')
 
                     ax.axvline(1, color='gray', zorder=0, linestyle='--')
                     ax.set_xlabel(xlabel, fontweight='bold', fontsize=label_fontsize)
 
-                    ax.text(i[lo].values[0], vix+pix+gix+kwargs.get('population_label_offset', 0.1), pname.values[0], fontsize=kwargs.get('population_label_fontsize', 10) - 4)
+                    ax.text(i[lo].values[0], vix+pix+gix+kwargs.get('population_label_offset', 0.1), pname.values[0], fontsize=kwargs.get('population_label_fontsize', 10) - 4, zorder=100)
 
                     ix+=1
                     
