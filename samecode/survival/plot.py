@@ -356,8 +356,8 @@ class KMPlot():
         
         
         ax.set_ylim([-0.03, 1])
-        ax.set_ylabel(kwargs.get('ylab', 'Survival Probability'), weight='bold', fontsize=xy_font_size, color=template_color)
-        ax.set_xlabel(kwargs.get('xlab', 'Timeline'), weight='bold', fontsize=xy_font_size, color=template_color)
+        ax.set_ylabel(kwargs.get('ylabel', 'Survival Probability'), weight='bold', fontsize=xy_font_size, color=template_color)
+        ax.set_xlabel(kwargs.get('xlabel', 'Timeline'), weight='bold', fontsize=xy_font_size, color=template_color)
         ax.tick_params(axis='x', colors=template_color)
         ax.tick_params(axis='y', colors=template_color)
         
