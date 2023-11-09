@@ -869,7 +869,9 @@ def forestplot(perf, figsize=(8, 3), ax=[], hr='hr', hi='hr_hi', lo='hr_lo', **k
                     ax.axvline(1, color='gray', zorder=0, linestyle='--')
                     ax.set_xlabel(xlabel, fontweight='bold', fontsize=label_fontsize)
 
-                    ax.text(i[lo].values[0], vix+pix+gix+kwargs.get('population_label_offset', 0.1), pname.values[0], fontsize=kwargs.get('population_label_fontsize', 10) - 4, zorder=100)
+                    ttx = kwargs.get('population_label_fixed_position', None)
+                    ttx = i[lo].values[0] if not ttx else ttx
+                    ax.text(ttx, vix+pix+gix+kwargs.get('population_label_offset', 0.1), pname.values[0], fontsize=kwargs.get('population_label_fontsize', 10) - 4, zorder=100)
 
                     ix+=1
                     
