@@ -45,7 +45,7 @@ def fix_string(s, v, m):
 
 def set_template(ax, **kwargs):
 
-    template_color = kwargs.get('template_color', 'black')
+    template_color = kwargs.get('template_color', 'white')
     xy_font_size = kwargs.get('xy_font_size', 10)
     title_size = kwargs.get('title_size', 12)
     title_weight = kwargs.get('title_weight', 120)
