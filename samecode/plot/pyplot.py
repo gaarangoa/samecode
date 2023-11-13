@@ -28,6 +28,7 @@ def subplots(**kwargs):
 
     return_f = kwargs.get("return_f", False)
     set_font(kwargs.get('font', 'arial'))
+    plt.rcParams['figure.facecolor'] = kwargs.get('facecolor', 'white')
 
     f = plt.figure(constrained_layout=True,  figsize=(w, h))
     gs = f.add_gridspec(rows, cols)
