@@ -2,7 +2,7 @@ from lifelines import CoxPHFitter
 from collections import Counter
 import pandas as pd
 
-def extract_kmstats(data, features, time, event):
+def extract_kmstats(data, features, time, event, labels=[0, 1]):
     r"""Extract a table with km statistics on a given set of clusters or features present in the data
 
     Args:
@@ -22,9 +22,9 @@ def extract_kmstats(data, features, time, event):
             
             # Summary
             sm = cph.summary[['exp(coef)', 'exp(coef) lower 95%', 'exp(coef) upper 95%', 'p']].reset_index(drop=False)
-            sm['n1'] = Counter(data_[cluster])[1]
-            sm['n0'] = Counter(data_[cluster])[0]
-            sm.columns = ['variable', 'hr', 'hr_lo', 'hr_hi', 'pval', 'n1', 'n0']
+            sm['n{}'.format(labels[1])] = Counter(data_[cluster])[labels[1]]
+            sm['n{}'.format(labels[0])] = Counter(data_[cluster])[labels[0]]
+            sm.columns = ['variable', 'hr', 'hr_lo', 'hr_hi', 'pval', 'n{}'.format(labels[1]), 'n{}'.format(labels[0])]
             
             resc.append(sm)
             
