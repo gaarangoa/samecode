@@ -22,9 +22,9 @@ def extract_kmstats(data, features, time, event):
             
             # Summary
             sm = cph.summary[['exp(coef)', 'exp(coef) lower 95%', 'exp(coef) upper 95%', 'p']].reset_index(drop=False)
-            sm['nP'] = Counter(data_[cluster])[1]
-            sm['nW'] = Counter(data_[cluster])[0]
-            sm.columns = ['variable', 'hr', 'hr_lo', 'hr_hi', 'pval', 'nN', 'nW']
+            sm['n1'] = Counter(data_[cluster])[1]
+            sm['n0'] = Counter(data_[cluster])[0]
+            sm.columns = ['variable', 'hr', 'hr_lo', 'hr_hi', 'pval', 'n1', 'n0']
             
             resc.append(sm)
             
