@@ -918,7 +918,13 @@ def simple_survival_plot(data, time, event, label, score, **kwargs):
 
 def cox_functions(data, predictor='label', control_arm_label=None, iteration_column=None, time='time', event='event', **kwargs):
     stats = []
-    labels = set(data[predictor])
+
+    if type(predictor) == str:
+        predictor = [predictor]
+
+    data['__label__'] = data[predictor].apply(lambda row: ' '.join(row.values.astype(str)), axis=1)
+
+    labels = set(data['__label__'])
     folds = set(data[iteration_column])
     prefix = kwargs.get('prefix', 'C')
     
@@ -927,7 +933,7 @@ def cox_functions(data, predictor='label', control_arm_label=None, iteration_col
             data_ = data[(data[iteration_column] == fold)].reset_index(drop=True).copy()
             
             # Set the control as 0 and the target arm as 1
-            data_['{}'.format(fold)] = (data_['{}'.format(predictor)] != control_arm_label).astype(np.int)  
+            data_['{}'.format(fold)] = (data_['{}'.format('__label__')] != control_arm_label).astype(np.int)  
 
             cph = CoxPHFitter().fit(data_[[time, event, '{}'.format(fold)]], time, event)
             sm = cph.summary[['exp(coef)', 'exp(coef) lower 95%', 'exp(coef) upper 95%', 'p']].reset_index(drop=False)
@@ -935,7 +941,7 @@ def cox_functions(data, predictor='label', control_arm_label=None, iteration_col
             
             # for label in labels:
                 # sm['prev_{}'.format(label)] = data['prev_{}'.format(label)].mean()
-            Ns = Counter(data_[predictor])
+            Ns = Counter(data_['__label__'])
             for label in labels:
                 sm['N_{}'.format(label)] = Ns[label]
                 
@@ -948,15 +954,20 @@ def cox_functions(data, predictor='label', control_arm_label=None, iteration_col
 
 def kmf_survival_functions(data, predictor='label', iteration_column=None, time='time', event='event'):
     '''Retrieve all KM survival functions using input data'''
-    
-    labels = set(data[predictor])
+
+    if type(predictor) == str:
+        predictor = [predictor]
+
+    data['__label__'] = data[predictor].apply(lambda row: ' '.join(row.values.astype(str)), axis=1)
+
+    labels = set(data['__label__'])
     folds = set(data[iteration_column])
     survival_functions = {}
     for label in labels:
         survival_functions_fold = []
         for fold in folds:
             try:
-                data_ = data[(data[iteration_column] == fold) & (data[predictor] == label)].reset_index(drop=True)
+                data_ = data[(data[iteration_column] == fold) & (data['__label__'] == label)].reset_index(drop=True)
                 kmf = KaplanMeierFitter( label=fold ).fit(data_[time], data_[event])
                 survival_functions_fold.append(kmf.survival_function_)
             except:
