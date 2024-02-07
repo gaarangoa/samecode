@@ -1,7 +1,0 @@
-setup.py
-samecode/__init__.py
-samecode/random.py
-samecode.egg-info/PKG-INFO
-samecode.egg-info/SOURCES.txt
-samecode.egg-info/dependency_links.txt
-samecode.egg-info/top_level.txt
