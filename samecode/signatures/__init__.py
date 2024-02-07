@@ -2,7 +2,7 @@ import pandas as pd
 
 def median_aggregation(data, signatures={}):
     '''
-    
+
     **Summary**: Computes the median of a list of gene expressions for each sample in a dataset.
 
     **Arguments**:

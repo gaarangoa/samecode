@@ -929,7 +929,7 @@ def cox_functions(data, predictor='label', control_arm_label=None, iteration_col
     prefix = kwargs.get('prefix', 'C')
     
     for fold in folds:
-        # try:
+        try:
             data_ = data[(data[iteration_column] == fold)].reset_index(drop=True).copy()
             
             # Set the control as 0 and the target arm as 1
@@ -946,9 +946,10 @@ def cox_functions(data, predictor='label', control_arm_label=None, iteration_col
                 sm['N_{}'.format(label)] = Ns[label]
                 
             stats.append(sm)
-        # except Exception as inst:
-        #     print(inst)
-        #     pass
+        except Exception as inst:
+            logger.error('Fold {} has an error'.format(fold))
+            logger.error(inst)
+            pass
     
     return pd.concat(stats).reset_index(drop=True)
 
