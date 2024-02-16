@@ -121,20 +121,6 @@ class KMPlot():
             title='PFS - IO vs Chemo',
         );
 
-        Optional: 
-        
-        saturation=1.0,
-        linewidth=1.5,
-        palette='Paired',
-        template_color = 'black', xy_font_size = 12,
-        hr_color = 'black',
-        x_legend = 0.15, y_legend = 0.95, legend_font_size=10,
-        label_height_adj=0.055,
-        x_hr_legend = 0.0, y_hr_legend = -0.3, hr_font_size=10,
-        show_censor
-        
-
-        Contact: gaarangoa
         '''
         
         self.colors = {}
@@ -146,50 +132,41 @@ class KMPlot():
     
     def plot(self, labels=None, **kwargs):
         '''
-        label[optional]: Label(s) to plot
-        linestyle[optional]:  list same dim as labels
-        color[optional]:  list same dim as labels
-        linewidth[optional]: list same dim as labels
-        legend_font_size[optional]: font size for legend
-        legend_labelspacing[optional]: 
-        saturation[optional]
-        label_height_adj: adjust space between labels (y axis)
-        xy_font_size: font size of x and y labels
-        comparisons: make comparisons between two curves [[tar, ref], [io, soc], [D, D+T]]
-        palette: "Paired"
-        template_color: '#7a7974'
-        adj_label_loc: 0.1
-        hr_color: 'black' # Color for hr layer
-        display_labels = [comp1, comp2]
+        Plot the Kaplan-Meier survival curves.
 
-        Example: 
+        Parameters:
+            - labels (list, optional): Labels to plot. Default is None.
+            - display_labels (list, optional): Labels to display. Default is None.
+            - ax (matplotlib.axes.Axes, optional): Matplotlib axes object. Default is False.
+            - colors (list or str, optional): Colors for each label. Default is determined by sns.color_palette.
+            - linestyle (list, optional): Line styles for each label. Default is ['-']*len(plot_labels).
+            - xy_font_size (int, optional): Font size for x and y axis labels. Default is 12.
+            - label_height_adj (float, optional): Adjustment for space between labels on the y-axis. Default is 0.05.
+            - template_color (str, optional): Color for template. Default is 'black'.
+            - comparisons (list, optional): List of comparisons between two curves. Default is [].
+            - title_weight (str, optional): Font weight for title. Default is 'normal'.
+            - title_size (int, optional): Font size for title. Default is 14.
+            - hr_color (str, optional): Color for hazard ratio layer. Default is determined by self.colors.
+            - x_legend (float, optional): X-coordinate for legend. Default is 0.15.
+            - y_legend (float, optional): Y-coordinate for legend. Default is 0.95.
+            - legend_font_size (int, optional): Font size for legend. Default is 10.
+            - show_censor (bool, optional): Whether to show censor. Default is True.
+            - ylabel (str, optional): Label for y-axis. Default is 'Survival Probability'.
+            - xlabel (str, optional): Label for x-axis. Default is 'Timeline'.
+            - ci_show (bool, optional): Whether to show confidence interval. Default is False.
+            - label_weight (str, optional): Font weight for labels. Default is 'bold'.
+            - x_hr_legend (float, optional): X-coordinate for hazard ratio legend. Default is 0.0.
+            - y_hr_legend (float, optional): Y-coordinate for hazard ratio legend. Default is -0.3.
+            - hr_font_size (int, optional): Font size for hazard ratio legend. Default is 10.
+            - saturation (float, optional): Saturation level for colors. Default is 1.0.
+            - linewidth (float, optional): Line width for the curves. Default is 1.5.
+            - palette (str, optional): Palette for color selection. Default is 'Paired'.
+            - show_cesor (bool, optional): Whether to show censor. Default is True.
 
-        axs = subplots(cols=1, rows=1, w=6, h=4)
-        KMPlot(data, time=time, event=event, label=['bin_risk', 'Treatment']).plot(
-            labels = ['GP_{}'.format('IO'), 'GN_{}'.format('IO'), 'GP_{}'.format('Chemo'), 'GN_{}'.format('Chemo')],
-            ax=axs[1],
-            comparisons=[
-                ['GP_{}'.format('IO'), 'GP_{}'.format('Chemo'), 'GP(IO vs Chemo): '], 
-                ['GN_{}'.format('IO'), 'GN_{}'.format('Chemo'), 'GN(IO vs Chemo): '], 
-                ['GP_{}'.format('IO'), 'GN_{}'.format('IO'), 'IO(GP vs GN): '], 
-                ['GP_{}'.format('Chemo'), 'GN_{}'.format('Chemo'), 'Chemo(GP vs GN): ']
-            ],
-            title='PFS - IO vs Chemo',
-        );
-
-        Optional: 
+        Returns:
+            - ax: Matplotlib axes object.
         
-        saturation=1.0,
-        linewidth=1.5,
-        palette='Paired',
-        template_color = 'black', xy_font_size = 12,
-        hr_color = 'black',
-        x_legend = 0.15, y_legend = 0.95, legend_font_size=10,
-        label_height_adj=0.055,
-        x_hr_legend = 0.0, y_hr_legend = -0.3, hr_font_size=10,
-
-
-        '''
+    '''
 
         
         label = labels
@@ -808,7 +785,54 @@ class PrettyPlotSurvival:
             plt.close()
 
 def forestplot(perf, figsize=(8, 3), ax=[], hr='hr', hi='hr_hi', lo='hr_lo', **kwargs):
-    # plt.style.use('default')
+    '''
+    Plot a forest plot.
+
+    Parameters:
+        - perf (DataFrame): Dataframe containing performance data.
+        - figsize (tuple, optional): Figure size. Default is (8, 3).
+        - ax (matplotlib.axes.Axes, optional): Matplotlib axes object. Default is an empty list [].
+        - hr (str, optional): Column name for hazard ratio. Default is 'hr'.
+        - hi (str, optional): Column name for upper confidence interval. Default is 'hr_hi'.
+        - lo (str, optional): Column name for lower confidence interval. Default is 'hr_lo'.
+        - marker (str, optional): Marker style. Default is 'D'.
+        - marker_s (int, optional): Marker size. Default is 80.
+        - marker_edgecolor (str, optional): Marker edge color. Default is '#000000'.
+        - marker_c (str, optional): Marker color. Default is '#000000'.
+        - label_fontsize (int, optional): Font size for labels. Default is 10.
+        - table_fontsize (int, optional): Font size for table. Default is 10.
+        - xlabel (str, optional): Label for x-axis. Default is 'Hazard Ratio'.
+        - xlim (list, optional): Limits for x-axis. Default is [0.25, 1.5].
+        - variable (str, optional): Column name for variable. Default is 'cluster'.
+        - xticks (list, optional): Tick positions for x-axis. Default is None.
+        - xticks_labelsize (int, optional): Font size for x-axis ticks. Default is 10.
+        - N1 (str, optional): Name for the first group. Default is 'N1'.
+        - N2 (str, optional): Name for the second group. Default is 'N2'.
+        - sort_by (str, optional): Column name for sorting. Default is False.
+        - population (str, optional): Column name for population. Default is None.
+        - variables (set, optional): Set of variables. Default is set(perf[variable].values).
+        - variable_shapes (dict, optional): Dictionary mapping variables to marker shapes. Default is {variable: marker}.
+        - populations (set, optional): Set of populations. Default is set(perf[population].values).
+        - population_name (str, optional): Column name for population name. Default is None.
+        - population_colors (dict, optional): Dictionary mapping populations to colors. Default is {population: 'black'}.
+        - group (str, optional): Column name for group. Default is None.
+        - groups (set, optional): Set of groups. Default is set(perf[group].values) if group else [np.nan].
+        - offset (int, optional): Offset value. Default is 1.
+        - offset2 (float, optional): Another offset value. Default is 0.2.
+        - population_label_fixed_position (float, optional): Fixed position for population label. Default is None.
+        - population_label_offset (float, optional): Offset for population label. Default is 0.1.
+        - population_label_fontsize (int, optional): Font size for population label. Default is 10.
+        - xlabel_offset (float, optional): Offset for x-axis label. Default is xlim[1].
+        - ylabel_offset (float, optional): Offset for y-axis label. Default is 0.
+        - ylabel_align (str, optional): Alignment for y-axis label. Default is 'left'.
+        - legend (bool, optional): Whether to show legend. Default is False.
+        - variable_names (list, optional): List of variable names. Default is variables.
+        - legend_xoffset (float, optional): X offset for legend. Default is xlim[1] / 2.
+        - legend_yoffset (float, optional): Y offset for legend. Default is 0.
+
+    Returns:
+        - ax: Matplotlib axes object.
+    '''
 
     marker = kwargs.get('marker', 'D')
     s = kwargs.get('marker_s', 80)
