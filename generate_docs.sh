@@ -15,8 +15,4 @@
 #    modules
 
 sphinx-apidoc -o sphx samecode/
-cd ./sphx/
-make html
-rm -r ../docs/
-mkdir ../docs
-mv ./_build/html/* ../docs/
+sphinx-build sphx _build
