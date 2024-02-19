@@ -14,5 +14,5 @@
 #    :caption: Contents:
 #    modules
 
-sphinx-apidoc -o sphx samecode/
-sphinx-build sphx _build
+sphinx-apidoc -o docs samecode/
+sphinx-build docs docs/_build
