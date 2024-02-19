@@ -24,7 +24,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ github.event_name == 'push' }}
         with:
-          publish_branch: master
+          publish_branch: documentation
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs/
           force_orphan: true
