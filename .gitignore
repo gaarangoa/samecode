@@ -5,6 +5,5 @@ _toc.yml
 build.sh
 .ipynb_checkpoints
 __pycache__
-sphx
 ._.DS_Store
 .DS_Store
