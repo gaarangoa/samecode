@@ -127,8 +127,53 @@ class KMPlot():
         
         self.fit(data, time, event, label, **kwargs)
     
-    def compare(self, ):
-        pass
+    def extract_hr(self, to_compare, **kwargs):
+
+        xcompare = [[('__label__', '__label__'), "\tHR\t(95% CI)\tP value", '']]
+        xinfo = [[len(i) for i in "\tHR\t(95% CI)\tP value".split('\t')]]
+        xinfo_space = []
+
+        if to_compare == []: return xcompare, xinfo, xinfo_space
+
+        for cx, item in enumerate(to_compare):
+            
+            if len(item) == 3:
+                [tar, ref, hr_label] = item
+            else: 
+                [tar, ref] = item
+                hr_label = '{} - {}: '.format(tar, ref)
+
+            x = self.data[self.data.__label__.isin([tar, ref])][[self.time, self.event, '__label__']].copy().reset_index(drop=True)
+            x.__label__.replace(ref, 0, inplace=True)
+            x.__label__.replace(tar, 1, inplace=True)
+            x.__label__ = x.__label__.astype(float)
+
+            cph = CoxPHFitter().fit(x, duration_col = self.time, event_col = self.event) 
+            cph = cph.summary[['exp(coef)', 'p', 'exp(coef) lower 95%', 'exp(coef) upper 95%']].reset_index().to_dict()
+            cph = {
+                "HR": cph.get('exp(coef)').get(0),
+                "HR_lo": cph.get('exp(coef) lower 95%').get(0),
+                "HR_hi": cph.get('exp(coef) upper 95%').get(0),
+                "P": cph.get('p').get(0),
+            }
+            
+            # color for HR 
+            hr_color = kwargs.get('hr_color', self.colors.get(tar, 'black'))
+            
+            # xinfo_ = '{}\tHR={:.2f}\t(CI 95%: {:.2f} - {:.2f})\tP-value={:.2e}'.format(hr_label, cph.get('HR'), cph.get('HR_lo'), cph.get('HR_hi'), cph.get('P'))
+            xinfo_list = {"Treatment": tar, "Control": ref,  "HR": cph.get('HR'), "HR_lo": cph.get('HR_lo'), "HR_hi": cph.get('HR_hi'), "pval": cph.get('P')} #'{}\t{:.2f}\t({:.2f}-{:.2f})\t{:.2e}'.format(hr_label, cph.get('HR'), cph.get('HR_lo'), cph.get('HR_hi'), cph.get('P'))
+            xinfo_string = '{}\t{:.2f}\t({:.2f}-{:.2f})\t{:.2e}'.format(hr_label, cph.get('HR'), cph.get('HR_lo'), cph.get('HR_hi'), cph.get('P'))
+
+            xinfo.append([len(i) for i in xinfo_string.split('\t')])
+            xinfo_space.append(
+                [get_end_position("_"+ii+"_._", kwargs.get('char_positions', {}) ) for ii in xinfo_string.split('\t')]
+            )
+
+            xcompare.append([
+                (tar, ref), xinfo_string, xinfo_list
+            ])
+
+            return xcompare, xinfo, xinfo_space
     
     def plot(self, labels=None, **kwargs):
         '''
@@ -166,7 +211,7 @@ class KMPlot():
         Returns:
             - ax: Matplotlib axes object.
         
-    '''
+        '''
 
         
         label = labels
@@ -260,45 +305,8 @@ class KMPlot():
         # ax.add_patch(rect)
 
         # Cox PH Fitters for HR estimation
-        xcompare = [[('__label__', '__label__'), "\tHR\t(95% CI)\tP value"]]
-        xinfo = [[len(i) for i in "\tHR\t(95% CI)\tP value".split('\t')]]
-        xinfo_space = []
-        for cx, item in enumerate(to_compare):
-            
-            if len(item) == 3:
-                [tar, ref, hr_label] = item
-            else: 
-                [tar, ref] = item
-                hr_label = '{} - {}: '.format(tar, ref)
 
-            x = self.data[self.data.__label__.isin([tar, ref])][[self.time, self.event, '__label__']].copy().reset_index(drop=True)
-            x.__label__.replace(ref, 0, inplace=True)
-            x.__label__.replace(tar, 1, inplace=True)
-            x.__label__ = x.__label__.astype(float)
-
-            cph = CoxPHFitter().fit(x, duration_col = self.time, event_col = self.event) 
-            cph = cph.summary[['exp(coef)', 'p', 'exp(coef) lower 95%', 'exp(coef) upper 95%']].reset_index().to_dict()
-            cph = {
-                "HR": cph.get('exp(coef)').get(0),
-                "HR_lo": cph.get('exp(coef) lower 95%').get(0),
-                "HR_hi": cph.get('exp(coef) upper 95%').get(0),
-                "P": cph.get('p').get(0),
-            }
-            
-            # color for HR 
-            hr_color = kwargs.get('hr_color', self.colors[tar])
-            
-            # xinfo_ = '{}\tHR={:.2f}\t(CI 95%: {:.2f} - {:.2f})\tP-value={:.2e}'.format(hr_label, cph.get('HR'), cph.get('HR_lo'), cph.get('HR_hi'), cph.get('P'))
-            xinfo_ = '{}\t{:.2f}\t({:.2f}-{:.2f})\t{:.2e}'.format(hr_label, cph.get('HR'), cph.get('HR_lo'), cph.get('HR_hi'), cph.get('P'))
-            xinfo.append([len(i) for i in xinfo_.split('\t')])
-            xinfo_space.append(
-                [get_end_position("_"+ii+"_._", char_positions) for ii in xinfo_.split('\t')]
-            )
-
-
-            xcompare.append([
-                (tar, ref), xinfo_
-            ])
+        xcompare, xinfo, xinfo_space = self.extract_hr(to_compare, char_positions=char_positions, **kwargs)
 
         if xinfo_space != []:
             max_pos_hr = np.max(np.array(xinfo_space, dtype=object), axis=0)
@@ -310,7 +318,8 @@ class KMPlot():
         hr_font_size=kwargs.get('hr_font_size', 10)
 
         max_values = np.array(xinfo)
-        for ix, [k, v] in enumerate(xcompare):
+        
+        for ix, [k, v, _] in enumerate(xcompare):
             
             tar, ref = k 
             if len(xcompare) == 1: continue
@@ -940,7 +949,39 @@ def simple_survival_plot(data, time, event, label, score, **kwargs):
         kmf = KaplanMeierFitter()
         kmfs[label] = kmf.fit(data[ix][self.OS_AVAL], self.data_o[ix][self.OS_CNSR], label='{}'.format( name )), ix, '', ['', '']
 
+
 def cox_functions(data, predictor='label', control_arm_label=None, iteration_column=None, time='time', event='event', **kwargs):
+    """
+    Performs survival analysis using Cox Proportional Hazards model across different subgroups or iterations within the data.
+
+    This function is designed to handle survival data, allowing the comparison of a treatment effect across various populations defined by the `predictor`. It computes the hazard ratio for each subgroup within the specified `iteration_column` and provides statistics for each group in comparison to a control arm.
+
+    Parameters:
+    - data (pd.DataFrame): The dataset containing survival data, predictors, and possibly multiple iterations or subgroups.
+    - predictor (str or list, optional): The column name(s) in `data` used to define the treatment groups. Defaults to 'label'. If a string is provided, it's converted to a list.
+    - control_arm_label (str, optional): The label of the control arm group within the predictor column(s). Rows with this label are treated as the baseline in hazard ratio calculations.
+    - iteration_column (str, optional): The column name in `data` used to separate the data into different subgroups or iterations for analysis. If specified, the function performs separate analyses for each unique value in this column.
+    - time (str, optional): The column name in `data` that specifies the survival time. Defaults to 'time'.
+    - event (str, optional): The column name in `data` that indicates the event occurrence (e.g., death, failure). Defaults to 'event'.
+    - **kwargs: Additional keyword arguments for customization. Supports 'prefix' (str) to add a prefix to group labels in the output DataFrame.
+
+    Returns:
+    - pd.DataFrame: A DataFrame containing the hazard ratio (`hr`), its 95% confidence intervals (`hr_lo`, `hr_hi`), and the p-value (`pval`) for each population defined by `predictor` and `iteration_column`. Also includes counts (`N_<label>`) for each label in the population.
+
+    Raises:
+    - Logs an error for any iteration where the Cox Proportional Hazards model fitting fails, providing the fold number and error details.
+
+    Note:
+    - The function expects that `data` is preprocessed appropriately, with no missing values in `time` and `event` columns for accurate Cox model fitting.
+    - It manipulates `data` to create a temporary `__label__` column for internal computations but does not modify the input DataFrame outside its scope.
+
+    Example:
+    ```
+    data = pd.DataFrame({...})
+    results = cox_functions(data, predictor='treatment_group', control_arm_label='placebo', iteration_column='study_id', time='follow_up_time', event='occurrence')
+    print(results)
+    ```
+    """
     stats = []
 
     if type(predictor) == str:
