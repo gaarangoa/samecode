@@ -134,7 +134,7 @@ class KMPlot():
         xinfo_space = []
 
         if to_compare == []: return xcompare, xinfo, xinfo_space
-
+        self.comparisons_table = []
         for cx, item in enumerate(to_compare):
             
             if len(item) == 3:
@@ -173,7 +173,10 @@ class KMPlot():
                 (tar, ref), xinfo_string, xinfo_list
             ])
 
-            return xcompare, xinfo, xinfo_space
+            self.comparisons_table.append(xinfo_list)
+
+        self.hr_table = pd.DataFrame(self.comparisons_table)
+        return xcompare, xinfo, xinfo_space
     
     def plot(self, labels=None, **kwargs):
         '''
@@ -368,6 +371,8 @@ class KMPlot():
         self.time = time
         self.event = event
 
+        label_column = label
+
         data = data.copy()
         if type(label) == str:
             label = [label]
@@ -382,6 +387,7 @@ class KMPlot():
         self.label_names = {}
         self.label_names_list = {}
         self.label_names_size = {}
+        self.survival_medians = []
         for label in self.labels:
             kmf = KaplanMeierFitter()
             ix = data.__label__ == label
@@ -400,6 +406,16 @@ class KMPlot():
             self.label_names[label] = '{}: {} {:.1f} ({:.1f} - {:.1f})'.format(label, self.counts[label], kmfs[label].median_survival_time_, lo, hi)
             self.label_names_list[label] = '{}:\t{}\t{:.1f}\t({:.1f} - {:.1f})'.format(label, self.counts[label], kmfs[label].median_survival_time_, lo, hi)
             self.label_names_size[label] = [len(k) for k in self.label_names_list[label].split('\t')]
+
+            
+            label_column_values = label.split('_')
+            med_ = {label_column[ix]: label_column_values[ix] for ix in range(len(label_column_values))}
+            med_.update(dict(counts=self.counts[label], median_time=kmfs[label].median_survival_time_, lo_median_time=lo, hi_median_time=hi))
+            
+
+            self.survival_medians.append(
+                med_
+            )
         
         self.label_names['__label__'] = ['N Median (95%CI)']
         self.label_names_list['__label__'] = ' \tN\tMedian\t(95% CI)'
@@ -407,6 +423,10 @@ class KMPlot():
 
         self.data = data[[time, event, '__label__']]
         self.kmfs = kmfs
+
+        self.medians_table = pd.DataFrame(self.survival_medians)
+
+        
 
 class PlotSurvival:
 
@@ -792,6 +812,149 @@ class PrettyPlotSurvival:
         
         if remove_plot:
             plt.close()
+
+def forestplot_simple(data, **kwargs):
+    '''
+    Generates a simple forest plot from the provided dataset, showing hazard ratios 
+    or other statistics with confidence intervals for different groups or variables.
+
+    Parameters:
+    - data (DataFrame): Input data for plotting.
+
+    Plot appearance:
+    - marker (str, optional): Shape of the marker. Defaults to 'o'.
+    - marker_s (int, optional): Size of the marker. Defaults to 20.
+    - marker_edgecolor (str, optional): Color of the marker edge. Defaults to '#000000'.
+    - label_fontsize (int, optional): Font size of the labels. Defaults to 10.
+    - xlabel (str, optional): Label for the x-axis. Defaults to 'Hazard Ratio'.
+    - xlim (list, optional): Limits for the x-axis. Defaults to [0.25, 1.5].
+    - xticks (list, optional): Tick marks for the x-axis. Automatically determined if None. Defaults to None.
+    - xticks_labelsize (int, optional): Font size of the x-axis tick labels. Defaults to 10.
+    
+    Data grouping and labels:
+    - groupby (str, optional): Column name to group data by. Defaults to 'cluster'.
+    - hr (str, optional): Column name for hazard ratios. Defaults to 'HR'.
+    - hr_hi (str, optional): Column name for the upper limit of the confidence interval. Defaults to 'HR_hi'.
+    - hr_lo (str, optional): Column name for the lower limit of the confidence interval. Defaults to 'HR_lo'.
+    
+    Additional customization:
+    - linewidth (int, optional): Width of the lines for confidence intervals. Defaults to 1.
+    - label_offset (float, optional): Y-axis offset for population labels. Defaults to 0.1.
+    - label_fontsize (int, optional): Font size for population labels. Defaults to 6.
+
+    Returns:
+    None: This function only creates a plot and does not return any value.
+    
+    Example: 
+    ax = subplots(cols=1, rows=1, w=6, h=12)[0]
+    forestplot_simple(
+        data=hrs.sort_values('HR', ascending=True).reset_index(drop=True),
+        groupby='Feature',
+        variable='Cluster',
+        label=['Cluster'],
+        treatment='SOC+D+T', control='SOC+D',
+        ax=ax,
+        marker_s=30,
+        marker='o',
+        xlim=[0, 3],
+        label_fixed_position=3.1,
+        xlabel_offset=0,
+        ylabel_offset=-1.8,
+        ylabel_align='right',
+    )
+    '''
+    
+    data = data.copy()
+    
+    marker = kwargs.get('marker', 'o')
+    s = kwargs.get('marker_s', 20)
+    marker_edgecolor = kwargs.get('marker_edgecolor', '#000000')
+    marker_c = kwargs.get('marker_c', '#000000')
+    label_fontsize = kwargs.get('label_fontsize', 10)
+    table_fontsize = kwargs.get('table_fontsize', 10)
+    xlabel = kwargs.get('xlabel', 'Hazard Ratio')
+    xlim=kwargs.get('xlim', [0.25, 1.5])
+    variable = kwargs.get('groupby', 'cluster')
+    xticks=kwargs.get('xticks', None)
+    xticks_labelsize = kwargs.get('xticks_labelsize', 10)
+    N1 = kwargs.get('N1', 'N1')
+    N2 = kwargs.get('N2', 'N2')
+    
+    group = kwargs.get('groupby', None)
+    groups = data[group].drop_duplicates().values
+    
+    variable = kwargs.get('variable', None)
+    variables = data[variable].drop_duplicates().values
+    # variable_shapes = {i[0]: i[1] for i in zip(variables, kwargs.get('variable_shapes', [marker]*len(variables)))}
+    
+    label=kwargs.get('label', [])
+    data['__label__'] = data[label].apply(lambda row: ' '.join(row.values.astype(str)), axis=1)
+    
+    sort_by = kwargs.get('sortby', None)
+    
+    hr = kwargs.get('hr', 'HR')
+    hi = kwargs.get('hr_hi', 'HR_hi')
+    lo = kwargs.get('hr_lo', 'HR_lo')
+    ax = kwargs.get('ax', '')
+    
+    if sort_by != None:
+        data.sort_values(sort_by).reset_index(drop=True)
+
+    if not xticks:
+        xticks = [ (i/100) for i in range(0, int(100*np.max(data[hi])), 50)]
+        
+    ix = 0
+    offset = kwargs.get('offset', 1)
+    offset2 = kwargs.get('offset', 0.2)
+    for gix, gi in enumerate(groups):
+        #marker_edgecolor = kwargs.get('marker_edgecolor', '#000000')
+        #if gix % 2 == 0: marker_edgecolor = 'gray'
+        
+        gix = gix*len(variables) + offset * gix
+        gv_ = data[data[group] == gi].sort_values(hr).reset_index(drop=True)[variable].values
+        
+        
+        
+        for vix, vi in enumerate(gv_):
+            
+            i = data[(data[variable] == vi) & (data[group] == gi)]
+            
+            if i.shape[0] == 0: continue
+            
+            ax.hlines(vix + gix, i[lo], i[hi], color=marker_edgecolor, linewidth=kwargs.get('linewidth', 1))
+            ax.scatter(i[hr], vix + gix, c=marker_edgecolor, marker=marker, s=s, zorder=100, edgecolors='white')
+
+            ax.axvline(1, color='gray', zorder=0, linestyle='--')
+            ax.set_xlabel(xlabel, fontweight='bold', fontsize=label_fontsize)
+
+            ttx = kwargs.get('label_fixed_position', None)
+            ttx = i[hr].values[0] if not ttx else ttx
+            
+            ax.text(ttx, vix+gix, i.__label__.values[0], fontsize=kwargs.get('label_fontsize', 10) - 4, zorder=100)
+
+            ix+=1
+                    
+        ax.text(
+            kwargs.get('xlabel_offset', xlim[1]), vix + gix + kwargs.get('ylabel_offset', 0.),
+            gi, 
+            fontsize=kwargs.get('label_fontsize', 10),
+            horizontalalignment=kwargs.get('ylabel_align', 'left'),
+            color=marker_edgecolor
+        )            
+
+    ax.set_xticks(xticks)
+    ax.tick_params(axis='x', labelsize=xticks_labelsize)
+    ax.set_xlim(xlim);
+
+    # ylim=[-0.25, gix*(vix-1) + 0.5]
+    # ax.set_ylim(ylim)
+
+    ax.spines['left'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.yaxis.set_ticks_position('left')
+    ax.tick_params(axis = "y", which = "both", left = False, right = False)
+    ax.set_yticklabels([])
 
 def forestplot(perf, figsize=(8, 3), ax=[], hr='hr', hi='hr_hi', lo='hr_lo', **kwargs):
     '''
