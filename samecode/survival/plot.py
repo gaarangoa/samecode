@@ -12,6 +12,7 @@ from lifelines import CoxPHFitter
 import six 
 import seaborn as sns
 from lifelines.utils import median_survival_times
+import itertools
 
 import logging
 import sys
@@ -68,7 +69,7 @@ def set_template(ax, **kwargs):
     for axis in ['top','right']:
         ax.spines[axis].set_linewidth(0.0)
 
-def compute_char_positions_ascii(font_size=12):
+def compute_char_positions_ascii(font_size=12, xycoords=True):
     fig, ax = plt.subplots()
     ax.axis('off')
 
@@ -86,8 +87,11 @@ def compute_char_positions_ascii(font_size=12):
         fig.canvas.draw()
         
         # Get bounding box of the text in axes coordinates
-        bbox = text_obj.get_window_extent().transformed(ax.transAxes.inverted())
-        
+        if xycoords:
+            bbox = text_obj.get_window_extent().transformed(ax.transAxes.inverted())
+        else:
+            bbox = text_obj.get_window_extent()
+
         # Store start and end x-coordinates
         start_x = bbox.x0
         end_x = bbox.x1
@@ -124,6 +128,7 @@ class KMPlot():
         '''
         
         self.colors = {}
+        self.label__ = label
         
         self.fit(data, time, event, label, **kwargs)
     
@@ -176,6 +181,24 @@ class KMPlot():
             self.comparisons_table.append(xinfo_list)
 
         self.hr_table = pd.DataFrame(self.comparisons_table)
+
+        try:
+            kpi = self.medians_table.pivot_table(index=self.label__[0], columns=self.label__[1], values='counts')
+
+            counts = []
+            for ix, i in self.hr_table.iterrows():
+                t, b = i.Treatment.split('_')
+                k1 = kpi.loc[t, b]
+                
+                t, b = i.Control.split('_')
+                k2 = kpi.loc[t, b]
+                
+                counts.append([k1, k2])
+                
+            self.hr_table[['Treatment_N', 'Control_N']] = counts
+        except: 
+            pass
+            
         return xcompare, xinfo, xinfo_space
     
     def plot(self, labels=None, **kwargs):
@@ -235,6 +258,7 @@ class KMPlot():
         linestyle = kwargs.get('linestyle', ['-']*len(plot_labels))
         xy_font_size = kwargs.get('xy_font_size', 12)
         label_height_adj = kwargs.get('label_height_adj', 0.05)
+        hr_height_adj = kwargs.get('hr_height_adj', 0.05)
         template_color = kwargs.get('template_color', 'black')
         to_compare = kwargs.get('comparisons', [])
         title_weight = kwargs.get('title_weight', 'normal')
@@ -269,7 +293,11 @@ class KMPlot():
         y_legend=kwargs.get('y_legend', 0.95)
         legend_font_size=kwargs.get('legend_font_size', 10)
 
-        char_positions = compute_char_positions_ascii(font_size=legend_font_size)
+        x_hr_legend=kwargs.get('x_hr_legend', 0)
+        y_hr_legend=kwargs.get('y_hr_legend', -0.3)
+        hr_font_size=kwargs.get('hr_font_size', 10)
+
+        char_positions = compute_char_positions_ascii(font_size=max([legend_font_size, hr_font_size]))
 
         pos = []
         for label in [i.split('\t') for i in self.label_names_list.values()]:
@@ -316,9 +344,7 @@ class KMPlot():
             max_pos_hr = np.cumsum(max_pos_hr)
             max_pos_hr = [0] + list(max_pos_hr)
 
-        x_hr_legend=kwargs.get('x_hr_legend', 0)
-        y_hr_legend=kwargs.get('y_hr_legend', -0.3)
-        hr_font_size=kwargs.get('hr_font_size', 10)
+        
 
         max_values = np.array(xinfo)
         
@@ -332,9 +358,9 @@ class KMPlot():
             for lix, vx in enumerate(v.split('\t')):
                 ax.annotate(
                     vx, 
-                    xy=(x_hr_legend + max_pos_hr[lix], y_hr_legend - ix*label_height_adj), 
+                    xy=(x_hr_legend + max_pos_hr[lix], y_hr_legend - ix*hr_height_adj), 
                     xycoords='axes fraction', 
-                    xytext=(x_hr_legend + max_pos_hr[lix], y_hr_legend - ix*label_height_adj),
+                    xytext=(x_hr_legend + max_pos_hr[lix], y_hr_legend - ix*hr_height_adj),
                     weight='bold', 
                     size=hr_font_size, 
                     color=hr_color,
@@ -813,54 +839,79 @@ class PrettyPlotSurvival:
         if remove_plot:
             plt.close()
 
-def forestplot_simple(data, **kwargs):
+def andop(x):
+    if sum(x) == len(x):
+        return True
+    else: 
+        return False
+
+# def generate_combined_list(*lists):
+#     combined_list = list(itertools.product(*lists))
+#     return combined_list
+
+def generate_combined_list(lists):
+    combined_list = [list(item) for item in itertools.product(*lists)]
+    return combined_list
+
+def foresplot(data, **kwargs):
     '''
-    Generates a simple forest plot from the provided dataset, showing hazard ratios 
-    or other statistics with confidence intervals for different groups or variables.
+    Generates a custom forest plot from the provided data.
 
     Parameters:
-    - data (DataFrame): Input data for plotting.
-
-    Plot appearance:
-    - marker (str, optional): Shape of the marker. Defaults to 'o'.
-    - marker_s (int, optional): Size of the marker. Defaults to 20.
-    - marker_edgecolor (str, optional): Color of the marker edge. Defaults to '#000000'.
-    - label_fontsize (int, optional): Font size of the labels. Defaults to 10.
-    - xlabel (str, optional): Label for the x-axis. Defaults to 'Hazard Ratio'.
-    - xlim (list, optional): Limits for the x-axis. Defaults to [0.25, 1.5].
-    - xticks (list, optional): Tick marks for the x-axis. Automatically determined if None. Defaults to None.
-    - xticks_labelsize (int, optional): Font size of the x-axis tick labels. Defaults to 10.
+    -----------
+    data : pandas.DataFrame The data to be plotted.
     
-    Data grouping and labels:
-    - groupby (str, optional): Column name to group data by. Defaults to 'cluster'.
-    - hr (str, optional): Column name for hazard ratios. Defaults to 'HR'.
-    - hr_hi (str, optional): Column name for the upper limit of the confidence interval. Defaults to 'HR_hi'.
-    - hr_lo (str, optional): Column name for the lower limit of the confidence interval. Defaults to 'HR_lo'.
-    
-    Additional customization:
-    - linewidth (int, optional): Width of the lines for confidence intervals. Defaults to 1.
-    - label_offset (float, optional): Y-axis offset for population labels. Defaults to 0.1.
-    - label_fontsize (int, optional): Font size for population labels. Defaults to 6.
+    marker : str,  Marker style for the scatter plot points. Default is 'o'.
+    marker_s : int,  Size of the markers. Default is 20.
+    color_column : str,  Column name in the data used to color the markers. Default is None.
+    linewidth : float,  Line width for the horizontal lines. Default is 1.
+    hr : str,  Column name for the hazard ratio. Default is 'HR'.
+    hr_hi : str,  Column name for the upper confidence interval of the hazard ratio. Default is 'HR_hi'.
+    hr_lo : str,  Column name for the lower confidence interval of the hazard ratio. Default is 'HR_lo'.
 
+    groupby : str,  Column name to group the data by. Default is None.
+    groupby_order : list,  Order of the groups for plotting. Default is None.
+    group_xlabel_offset : float,  Offset for the x-axis label position. Default is the lower xlim value.
+    group_ylabel_offset : float,  Offset for the y-axis label position. Default is 0.
+    
+    table : list,  List of labels for the plot. Default is an empty list.
+    xtable_pos : list, relative position for the labels. Default is None.
+    xtable_offset: float, , position of the table in the x axis.
+    ytable_offset : float,  Offset for the group positions. Default is 1.
+    table_fontsize : int,  Font size for the table. Default is 10.
+    
+    index : List of columns to use as index for the plot. Default is None.
+    index_order : Order of the index for plotting. Default is None.
+
+    xlabel : str,  Label for the x-axis. Default is 'Hazard Ratio'.
+    xlabel_fontsize : int,  Font size for the labels. Default is 10.
+    xlim : list,  Limits for the x-axis. Default is [0.25, 1.5].
+    xticks_labelsize : int,  Font size for the x-axis tick labels. Default is 10.
+
+    ax : matplotlib.axes.Axes,  The axes on which to plot. Default is an empty string.
+    
     Returns:
-    None: This function only creates a plot and does not return any value.
-    
-    Example: 
-    ax = subplots(cols=1, rows=1, w=6, h=12)[0]
+    --------
+    None
+        The function modifies the provided matplotlib axes to create a forest plot.
+
+    Example:
+    --------
+    f, axs = subplots(cols=1, rows=1, w=5, h=1.6, return_f=True)
     forestplot_simple(
-        data=hrs.sort_values('HR', ascending=True).reset_index(drop=True),
-        groupby='Feature',
-        variable='Cluster',
-        label=['Cluster'],
-        treatment='SOC+D+T', control='SOC+D',
-        ax=ax,
-        marker_s=30,
-        marker='o',
-        xlim=[0, 3],
-        label_fixed_position=3.1,
-        xlabel_offset=0,
-        ylabel_offset=-1.8,
-        ylabel_align='right',
+        data = study_level.query('split == "train"'),
+        groupby = 'tool',
+        groupby_order = ['SIDES', 'VT', 'PBMF'],
+        index = ['tool', 'biomarker'],
+        index_order = [['PBMF', 'VT', 'SIDES'], ['B+', 'B-']],
+        table=['biomarker', 'HR_label'],
+        xtable_pos = [0, 0.1, 0.17, 0.9],
+        xlim=[-0.2, 2.1],
+        ax = axs[0],
+        ytable_offset=-2,
+        marker_s=40,
+        color_column = 'color',
+        table_fontsize = 9,
     )
     '''
     
@@ -869,77 +920,87 @@ def forestplot_simple(data, **kwargs):
     marker = kwargs.get('marker', 'o')
     s = kwargs.get('marker_s', 20)
     marker_edgecolor = kwargs.get('marker_edgecolor', '#000000')
+    color_column = kwargs.get('color_column', None)
+
+    try:
+        data[color_column]
+        data['marker_edgecolor'] = data[color_column]
+    except:
+        data['marker_edgecolor'] = marker_edgecolor
+    
     marker_c = kwargs.get('marker_c', '#000000')
-    label_fontsize = kwargs.get('label_fontsize', 10)
+    label_fontsize = kwargs.get('xlabel_fontsize', 10)
     table_fontsize = kwargs.get('table_fontsize', 10)
     xlabel = kwargs.get('xlabel', 'Hazard Ratio')
     xlim=kwargs.get('xlim', [0.25, 1.5])
-    variable = kwargs.get('groupby', 'cluster')
+
     xticks=kwargs.get('xticks', None)
     xticks_labelsize = kwargs.get('xticks_labelsize', 10)
-    N1 = kwargs.get('N1', 'N1')
-    N2 = kwargs.get('N2', 'N2')
     
     group = kwargs.get('groupby', None)
-    groups = data[group].drop_duplicates().values
+    groupby_order = kwargs.get('groupby_order', None)
+    if type(groupby_order) == list:
+        groups = np.array(groupby_order)
+    else:
+        groups = data[group].drop_duplicates().values
     
-    variable = kwargs.get('variable', None)
-    variables = data[variable].drop_duplicates().values
-    # variable_shapes = {i[0]: i[1] for i in zip(variables, kwargs.get('variable_shapes', [marker]*len(variables)))}
-    
-    label=kwargs.get('label', [])
-    data['__label__'] = data[label].apply(lambda row: ' '.join(row.values.astype(str)), axis=1)
-    
-    sort_by = kwargs.get('sortby', None)
+    index = kwargs.get('index', None)
+    index_order = kwargs.get('index_order', None)
+    ordered_index = generate_combined_list(index_order)
+
+    label=kwargs.get('table', [])
+    manual_table_position = kwargs.get('xtable_pos', None)
+    manual_table_position = {k: v for k, v in zip(label, manual_table_position)}
     
     hr = kwargs.get('hr', 'HR')
     hi = kwargs.get('hr_hi', 'HR_hi')
     lo = kwargs.get('hr_lo', 'HR_lo')
     ax = kwargs.get('ax', '')
-    
-    if sort_by != None:
-        data.sort_values(sort_by).reset_index(drop=True)
 
     if not xticks:
         xticks = [ (i/100) for i in range(0, int(100*np.max(data[hi])), 50)]
-        
+
     ix = 0
-    offset = kwargs.get('offset', 1)
-    offset2 = kwargs.get('offset', 0.2)
+    offset = kwargs.get('ytable_offset', 1)
     for gix, gi in enumerate(groups):
-        #marker_edgecolor = kwargs.get('marker_edgecolor', '#000000')
-        #if gix % 2 == 0: marker_edgecolor = 'gray'
         
-        gix = gix*len(variables) + offset * gix
-        gv_ = data[data[group] == gi].sort_values(hr).reset_index(drop=True)[variable].values
+        gix = gix*len(ordered_index) + offset * gix
+        gv_ = data[data[group] == gi].reset_index(drop=True)[index].values
         
-        
-        
-        for vix, vi in enumerate(gv_):
-            
-            i = data[(data[variable] == vi) & (data[group] == gi)]
-            
-            if i.shape[0] == 0: continue
-            
-            ax.hlines(vix + gix, i[lo], i[hi], color=marker_edgecolor, linewidth=kwargs.get('linewidth', 1))
-            ax.scatter(i[hr], vix + gix, c=marker_edgecolor, marker=marker, s=s, zorder=100, edgecolors='white')
+        vix = 0
+        for idx in ordered_index:
 
-            ax.axvline(1, color='gray', zorder=0, linestyle='--')
-            ax.set_xlabel(xlabel, fontweight='bold', fontsize=label_fontsize)
+                i = (data[index + [group]] == list(idx) +[gi])
+                idxi = i.sum(axis=1) == len(index) + 1
+                i = data[idxi]
 
-            ttx = kwargs.get('label_fixed_position', None)
-            ttx = i[hr].values[0] if not ttx else ttx
-            
-            ax.text(ttx, vix+gix, i.__label__.values[0], fontsize=kwargs.get('label_fontsize', 10) - 4, zorder=100)
+                if i.shape[0] == 0: continue
+                icolor = i['marker_edgecolor'].values[0]
+                
+                ax.hlines(vix + gix, i[lo], i[hi], color=icolor, linewidth=kwargs.get('linewidth', 1))
+                ax.scatter(i[hr], vix + gix, c=icolor, marker=marker, s=s, zorder=100, edgecolors='white')
 
-            ix+=1
+                ax.axvline(1, color='gray', zorder=0, linestyle='--')
+                ax.set_xlabel(xlabel, fontweight='bold', fontsize=label_fontsize)
+
+                ttx = kwargs.get('xtable_offset', xlim[0])
+                for ilab in label:
+                    ax.text(
+                        ttx+manual_table_position[ilab], 
+                        vix+gix, 
+                        i[ilab].values[0], 
+                        fontsize=kwargs.get('table_fontsize', 10) - 2, zorder=100,
+                        color=icolor
+                    )
+
+                vix+=1
                     
         ax.text(
-            kwargs.get('xlabel_offset', xlim[1]), vix + gix + kwargs.get('ylabel_offset', 0.),
+            kwargs.get('group_xlabel_offset', xlim[0]), vix + gix + kwargs.get('group_ylabel_offset', 0.),
             gi, 
-            fontsize=kwargs.get('label_fontsize', 10),
+            fontsize=kwargs.get('table_fontsize', 10)+1,
             horizontalalignment=kwargs.get('ylabel_align', 'left'),
-            color=marker_edgecolor
+            color='black'
         )            
 
     ax.set_xticks(xticks)
@@ -956,151 +1017,6 @@ def forestplot_simple(data, **kwargs):
     ax.tick_params(axis = "y", which = "both", left = False, right = False)
     ax.set_yticklabels([])
 
-def forestplot(perf, figsize=(8, 3), ax=[], hr='hr', hi='hr_hi', lo='hr_lo', **kwargs):
-    '''
-    Plot a forest plot.
-
-    Parameters:
-        - perf (DataFrame): Dataframe containing performance data.
-        - figsize (tuple, optional): Figure size. Default is (8, 3).
-        - ax (matplotlib.axes.Axes, optional): Matplotlib axes object. Default is an empty list [].
-        - hr (str, optional): Column name for hazard ratio. Default is 'hr'.
-        - hi (str, optional): Column name for upper confidence interval. Default is 'hr_hi'.
-        - lo (str, optional): Column name for lower confidence interval. Default is 'hr_lo'.
-        - marker (str, optional): Marker style. Default is 'D'.
-        - marker_s (int, optional): Marker size. Default is 80.
-        - marker_edgecolor (str, optional): Marker edge color. Default is '#000000'.
-        - marker_c (str, optional): Marker color. Default is '#000000'.
-        - label_fontsize (int, optional): Font size for labels. Default is 10.
-        - table_fontsize (int, optional): Font size for table. Default is 10.
-        - xlabel (str, optional): Label for x-axis. Default is 'Hazard Ratio'.
-        - xlim (list, optional): Limits for x-axis. Default is [0.25, 1.5].
-        - variable (str, optional): Column name for variable. Default is 'cluster'.
-        - xticks (list, optional): Tick positions for x-axis. Default is None.
-        - xticks_labelsize (int, optional): Font size for x-axis ticks. Default is 10.
-        - N1 (str, optional): Name for the first group. Default is 'N1'.
-        - N2 (str, optional): Name for the second group. Default is 'N2'.
-        - sort_by (str, optional): Column name for sorting. Default is False.
-        - population (str, optional): Column name for population. Default is None.
-        - variables (set, optional): Set of variables. Default is set(perf[variable].values).
-        - variable_shapes (dict, optional): Dictionary mapping variables to marker shapes. Default is {variable: marker}.
-        - populations (set, optional): Set of populations. Default is set(perf[population].values).
-        - population_name (str, optional): Column name for population name. Default is None.
-        - population_colors (dict, optional): Dictionary mapping populations to colors. Default is {population: 'black'}.
-        - group (str, optional): Column name for group. Default is None.
-        - groups (set, optional): Set of groups. Default is set(perf[group].values) if group else [np.nan].
-        - offset (int, optional): Offset value. Default is 1.
-        - offset2 (float, optional): Another offset value. Default is 0.2.
-        - population_label_fixed_position (float, optional): Fixed position for population label. Default is None.
-        - population_label_offset (float, optional): Offset for population label. Default is 0.1.
-        - population_label_fontsize (int, optional): Font size for population label. Default is 10.
-        - xlabel_offset (float, optional): Offset for x-axis label. Default is xlim[1].
-        - ylabel_offset (float, optional): Offset for y-axis label. Default is 0.
-        - ylabel_align (str, optional): Alignment for y-axis label. Default is 'left'.
-        - legend (bool, optional): Whether to show legend. Default is False.
-        - variable_names (list, optional): List of variable names. Default is variables.
-        - legend_xoffset (float, optional): X offset for legend. Default is xlim[1] / 2.
-        - legend_yoffset (float, optional): Y offset for legend. Default is 0.
-
-    Returns:
-        - ax: Matplotlib axes object.
-    '''
-
-    marker = kwargs.get('marker', 'D')
-    s = kwargs.get('marker_s', 80)
-    marker_edgecolor = kwargs.get('marker_edgecolor', '#000000')
-    marker_c = kwargs.get('marker_c', '#000000')
-    label_fontsize = kwargs.get('label_fontsize', 10)
-    table_fontsize = kwargs.get('table_fontsize', 10)
-    xlabel = kwargs.get('xlabel', 'Hazard Ratio')
-    xlim=kwargs.get('xlim', [0.25, 1.5])
-    variable = kwargs.get('variable', 'cluster')
-    xticks=kwargs.get('xticks', None)
-    xticks_labelsize = kwargs.get('xticks_labelsize', 10)
-    N1 = kwargs.get('N1', 'N1')
-    N2 = kwargs.get('N2', 'N2')
-    sort_by = kwargs.get('sortby', False)
-
-    if sort_by:
-        perf.sort_values(sort_by).reset_index(drop=True)
-
-    if not xticks:
-        xticks = [ (i/100) for i in range(0, int(100*np.max(perf[hi])), 50)]
-
-    population = kwargs.get('population', None)
-    variables = kwargs.get('variables', set(perf[variable].values) )
-    variable_shapes = {i[0]: i[1] for i in zip(variables, kwargs.get('variable_shapes', [marker]*len(variables)))}
-
-    populations = kwargs.get('populations', set(perf[population].values) )
-    population_name = kwargs.get('population_name', None)
-    
-    population_colors = {i[0]: i[1] for i in zip(populations, kwargs.get('population_colors', ['black']*len(population)))}
-
-    group = kwargs.get('group', None)
-    groups = kwargs.get('groups', set(perf[group].values) if group else [np.nan])
-
-    ix = 0
-    offset = kwargs.get('offset', 1)
-    offset2 = kwargs.get('offset', 0.2)
-    for gix, gi in enumerate(groups):
-        gix = gix*len(variables) + offset * gix
-        for vix, vi in enumerate(variables):
-            for pix, pi in enumerate(populations):
-                    pix = pix / (len(populations))
-                    marker_edgecolor = population_colors[pi]
-                    shape = variable_shapes[vi]
-                    
-                    i = perf[(perf[variable] == vi) & (perf[population] == pi) & (perf[group] == gi)]
-
-                    pname = None
-                    if population_name: 
-                        pname = i[population_name]
-
-                    ax.hlines(vix + pix + gix, i[lo], i[hi], color=marker_edgecolor, linewidth=kwargs.get('linewidth', 1))
-
-                    ax.scatter(i[lo], vix + pix + gix, c=marker_edgecolor , marker='|', zorder=-1)
-                    ax.scatter(i[hi], vix + pix + gix, c=marker_edgecolor , marker='|', zorder=0)
-                    ax.scatter(i[hr], vix + pix + gix, c=marker_edgecolor, marker=shape, s=s, zorder=100, edgecolors='white')
-
-                    ax.axvline(1, color='gray', zorder=0, linestyle='--')
-                    ax.set_xlabel(xlabel, fontweight='bold', fontsize=label_fontsize)
-
-                    ttx = kwargs.get('population_label_fixed_position', None)
-                    ttx = i[lo].values[0] if not ttx else ttx
-                    ax.text(ttx, vix+pix+gix+kwargs.get('population_label_offset', 0.1), pname.values[0], fontsize=kwargs.get('population_label_fontsize', 10) - 4, zorder=100)
-
-                    ix+=1
-                    
-        ax.text(
-            kwargs.get('xlabel_offset', xlim[1]), vix + pix + gix + kwargs.get('ylabel_offset', 0.),
-            gi, 
-            fontsize=kwargs.get('label_fontsize', 10),
-            horizontalalignment=kwargs.get('ylabel_align', 'left')
-        )
-
-
-    # draw legend box
-    if kwargs.get('legend', False):
-        variable__names = kwargs.get('variable_names', variables)
-        for vi, variable in enumerate(variables):
-            ax.scatter(kwargs.get('legend_xoffset', xlim[1] / 2), vi, marker=variable_shapes[variable], edgecolors='white', s=s, c='black')
-            ax.text(kwargs.get('legend_xoffset', xlim[1] / 2)+0.1, vi + kwargs.get('legend_yoffset', 0), variable__names[vi], fontsize=kwargs.get('legend_fontsize', 7))
-
-                    
-
-    ax.set_xticks(xticks)
-    ax.tick_params(axis='x', labelsize=xticks_labelsize)
-    ax.set_xlim(xlim);
-
-    # ylim=[-0.25, gix*(vix-1) + 0.5]
-    # ax.set_ylim(ylim)
-
-    ax.spines['left'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.spines['top'].set_visible(False)
-    ax.yaxis.set_ticks_position('left')
-    ax.tick_params(axis = "y", which = "both", left = False, right = False)
-    ax.set_yticklabels([])
 
 #### Plot survival for multiple iterations of the data. Training / Testing splits. 
 
