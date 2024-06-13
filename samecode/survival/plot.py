@@ -853,7 +853,7 @@ def generate_combined_list(lists):
     combined_list = [list(item) for item in itertools.product(*lists)]
     return combined_list
 
-def foresplot(data, **kwargs):
+def forestplot(data, **kwargs):
     '''
     Generates a custom forest plot from the provided data.
 
@@ -968,7 +968,7 @@ def foresplot(data, **kwargs):
         gv_ = data[data[group] == gi].reset_index(drop=True)[index].values
         
         vix = 0
-        for idx in ordered_index:
+        for ixx, idx in enumerate(ordered_index):
 
                 i = (data[index + [group]] == list(idx) +[gi])
                 idxi = i.sum(axis=1) == len(index) + 1
@@ -987,16 +987,23 @@ def foresplot(data, **kwargs):
                 for ilab in label:
                     ax.text(
                         ttx+manual_table_position[ilab], 
-                        vix+gix, 
+                        vix+gix-0.25, 
                         i[ilab].values[0], 
                         fontsize=kwargs.get('table_fontsize', 10) - 2, zorder=100,
                         color=icolor
                     )
-
+                
+                if vix % 4 == 0:
+                    # ax.hlines(vix+gix, xlim[0], xlim[1], color='black', linewidth=1, zorder=-1000)
+                    # ax.hlines(vix+gix+2, xlim[0], xlim[1], color='black', linewidth=1, zorder=-1000)
+                    ax.fill_between(xlim, vix+gix-0.5, vix+gix+2-0.5, color='gray', alpha=0.05, edgecolor='white')
+    
                 vix+=1
-                    
+                
+                
         ax.text(
-            kwargs.get('group_xlabel_offset', xlim[0]), vix + gix + kwargs.get('group_ylabel_offset', 0.),
+            kwargs.get('group_xlabel_offset', xlim[0]), 
+            vix + gix + kwargs.get('group_ylabel_offset', 0.),
             gi, 
             fontsize=kwargs.get('table_fontsize', 10)+1,
             horizontalalignment=kwargs.get('ylabel_align', 'left'),
