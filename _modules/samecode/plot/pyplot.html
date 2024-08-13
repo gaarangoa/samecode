@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>samecode.plot.pyplot &mdash; samecode 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            samecode
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">samecode</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">samecode</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+          <li class="breadcrumb-item"><a href="../plot.html">samecode.plot</a></li>
+      <li class="breadcrumb-item active">samecode.plot.pyplot</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for samecode.plot.pyplot</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+
+<span class="c1"># from judge.experimental.survival import PlotSurvival</span>
+<span class="c1"># from judge.dataset.vendors.GuardantHealth.OMNI import format_OMNI_report</span>
+<span class="c1"># from judge.experimental.survival import forestplot</span>
+
+<span class="kn">from</span> <span class="nn">..fonts</span> <span class="kn">import</span> <span class="n">set_font</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>
+
+<div class="viewcode-block" id="subplots"><a class="viewcode-back" href="../../../samecode.plot.html#samecode.plot.pyplot.subplots">[docs]</a><span class="k">def</span> <span class="nf">subplots</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    axs = subplots(rows=1, cols=4, w=8, h=4)</span>
+
+<span class="sd">    sns.boxplot(y=performance.loc[1].scalars, ax=axs[0])</span>
+<span class="sd">    sns.boxplot(y=performance.loc[7].scalars, ax=axs[1])</span>
+
+<span class="sd">    [ax.set_ylim([0.7, 1]) for ax in axs];</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    
+    <span class="n">rows</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;rows&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> 
+    <span class="n">cols</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cols&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> 
+    <span class="n">w</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;h&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+
+    <span class="n">return_f</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;return_f&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">set_font</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;font&#39;</span><span class="p">,</span> <span class="s1">&#39;arial&#39;</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;figure.facecolor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;facecolor&#39;</span><span class="p">,</span> <span class="s1">&#39;white&#39;</span><span class="p">)</span>
+
+    <span class="n">f</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">))</span>
+    <span class="n">gs</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">add_gridspec</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">)</span>
+    <span class="n">axs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cols</span><span class="p">):</span>
+            <span class="n">ax_</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">])</span>
+            <span class="c1"># ax_.set_facecolor((1, 1, 1, 0))</span>
+            <span class="n">axs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span> <span class="n">ax_</span> <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">return_f</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">f</span><span class="p">,</span> <span class="n">axs</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">axs</span></div>
+
+<div class="viewcode-block" id="clear_plot"><a class="viewcode-back" href="../../../samecode.plot.html#samecode.plot.pyplot.clear_plot">[docs]</a><span class="k">def</span> <span class="nf">clear_plot</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;left&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;right&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;bottom&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">which</span> <span class="o">=</span> <span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">left</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">which</span> <span class="o">=</span> <span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">left</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">([])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">([])</span></div>
+
+<div class="viewcode-block" id="skdeplot"><a class="viewcode-back" href="../../../samecode.plot.html#samecode.plot.pyplot.skdeplot">[docs]</a><span class="k">def</span> <span class="nf">skdeplot</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Usage:</span>
+<span class="sd">    ---------------</span>
+<span class="sd">    skdeplot(</span>
+<span class="sd">        beta_dist, </span>
+<span class="sd">        x=&#39;β&#39;, </span>
+<span class="sd">        y=&#39;group&#39;, </span>
+<span class="sd">        ax=axs[0], </span>
+<span class="sd">        offset=0.9,</span>
+<span class="sd">        order = [&#39;Original Scores&#39;, &quot;Perturbing: &quot; + var2, &quot;Perturbing: &quot; + var1, &#39;Perturbing: Both&#39;],</span>
+<span class="sd">        alpha=1</span>
+<span class="sd">    )</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">offset2</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;offset&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;points&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="n">interval</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="n">offset2</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="n">offset2</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">offset</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;offset&#39;</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;colors&#39;</span><span class="p">,</span> <span class="n">sns</span><span class="o">.</span><span class="n">color_palette</span><span class="p">(</span><span class="s1">&#39;Paired&#39;</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">desat</span><span class="o">=</span><span class="mf">0.4</span><span class="p">))</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;alpha&#39;</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
+    
+    
+    <span class="n">groups</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;order&#39;</span><span class="p">,</span> <span class="nb">set</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">y</span><span class="p">]))</span>
+    <span class="n">textures</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;textures&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">groups</span><span class="p">))</span>
+    <span class="n">edgecolors</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;edgecolors&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;black&#39;</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">groups</span><span class="p">))</span>
+
+    <span class="n">of_i</span> <span class="o">=</span> <span class="n">offset</span>
+    <span class="k">for</span> <span class="n">ig</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">groups</span><span class="p">):</span>
+
+        <span class="n">kernel</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">gaussian_kde</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">y</span><span class="p">]</span> <span class="o">==</span> <span class="n">group</span><span class="p">][</span><span class="n">x</span><span class="p">])</span>
+        <span class="n">yval</span> <span class="o">=</span> <span class="n">kernel</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span>
+        <span class="n">yval</span> <span class="o">=</span> <span class="p">(</span><span class="n">yval</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">yval</span><span class="p">))</span> <span class="o">/</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">yval</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">yval</span><span class="p">))</span>
+        
+        <span class="n">sns</span><span class="o">.</span><span class="n">lineplot</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">yval</span><span class="o">-</span><span class="n">offset</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">interval</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="n">ig</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">interval</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">yval</span><span class="p">)</span><span class="o">-</span><span class="n">offset</span><span class="p">,</span> <span class="n">yval</span><span class="o">-</span><span class="n">offset</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">ig</span><span class="p">],</span> <span class="n">zorder</span><span class="o">=</span><span class="n">ig</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">group</span><span class="p">,</span> <span class="n">hatch</span><span class="o">=</span><span class="n">textures</span><span class="p">[</span><span class="n">ig</span><span class="p">],</span> <span class="n">edgecolor</span><span class="o">=</span><span class="n">edgecolors</span><span class="p">[</span><span class="n">ig</span><span class="p">])</span>
+        
+        
+        
+        <span class="n">offset</span> <span class="o">+=</span> <span class="n">of_i</span>
+        
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;left&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;right&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_ticks_position</span><span class="p">(</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span> <span class="o">=</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">which</span> <span class="o">=</span> <span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">left</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">([])</span>
+    
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="dibarplot"><a class="viewcode-back" href="../../../samecode.plot.html#samecode.plot.pyplot.dibarplot">[docs]</a><span class="k">def</span> <span class="nf">dibarplot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">ylim</span><span class="o">=</span><span class="p">[],</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">x_label</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Input is a dataframe with the required data.</span>
+<span class="sd">    </span>
+<span class="sd">    ----</span>
+<span class="sd">    Example: </span>
+<span class="sd">    </span>
+<span class="sd">    dibarplot(</span>
+<span class="sd">        x=[&#39;orange&#39;, &#39;abd&#39;], </span>
+<span class="sd">        y=[100, 3],</span>
+<span class="sd">        legend=&#39;test&#39;,</span>
+<span class="sd">        ylim=[0, 2, 29],</span>
+<span class="sd">        figsize=(4, 4)</span>
+<span class="sd">    )</span>
+
+<span class="sd">    &#39;&#39;&#39;</span>
+    
+    <span class="n">f</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">constrained_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+    <span class="n">gs</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">add_gridspec</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">=</span><span class="n">f</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="n">ax2</span><span class="o">=</span><span class="n">f</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+    <span class="n">sns</span><span class="o">.</span><span class="n">barplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">legend</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+    <span class="n">sns</span><span class="o">.</span><span class="n">barplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">legend</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+    
+
+    <span class="n">ylim_</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">ylim_</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># outliers only</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ylim</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ylim</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># most of the data</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;bottom&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">tick_top</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axes</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_ticks</span><span class="p">([])</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">labeltop</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># don&#39;t put tick labels at the top</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">tick_bottom</span><span class="p">()</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">x_label</span><span class="p">);</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">);</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">);</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">);</span>
+
+    <span class="n">d</span> <span class="o">=</span> <span class="mf">.005</span>  <span class="c1"># how big to make the diagonal lines in axes coordinates</span>
+    <span class="c1"># arguments to pass to plot, just so we don&#39;t keep repeating them</span>
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">clip_on</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">((</span><span class="o">-</span><span class="n">d</span><span class="p">,</span> <span class="o">+</span><span class="n">d</span><span class="p">),</span> <span class="p">(</span><span class="o">-</span><span class="n">d</span><span class="p">,</span> <span class="o">+</span><span class="n">d</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>        <span class="c1"># top-left diagonal</span>
+    <span class="c1"># ax.plot((1 - d, 1 + d), (-d, +d), **kwargs)  # top-right diagonal</span>
+
+    <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">transform</span><span class="o">=</span><span class="n">ax2</span><span class="o">.</span><span class="n">transAxes</span><span class="p">)</span>  <span class="c1"># switch to the bottom axes</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">((</span><span class="o">-</span><span class="n">d</span><span class="p">,</span> <span class="o">+</span><span class="n">d</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">d</span><span class="p">,</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">d</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  <span class="c1"># bottom-left diagonal</span>
+    <span class="c1"># ax2.plot((1 - d, 1 + d), (1 - d, 1 + d), **kwargs);</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;right&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;right&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">);</span>
+    
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="s1">&#39;bold&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="variable_change_percentil"><a class="viewcode-back" href="../../../samecode.plot.html#samecode.plot.pyplot.variable_change_percentil">[docs]</a><span class="k">def</span> <span class="nf">variable_change_percentil</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">percentil</span><span class="p">,</span> <span class="n">ref_x</span><span class="p">,</span> <span class="n">ref_y</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="s1">&#39;event&#39;</span><span class="p">,</span> <span class="n">OS</span><span class="o">=</span><span class="s1">&#39;OS&#39;</span><span class="p">,</span> <span class="n">iterations</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">axs</span><span class="o">=</span><span class="p">[],</span> <span class="n">f</span><span class="o">=</span><span class="p">[],</span> <span class="n">ref_x_lab</span><span class="o">=</span><span class="s1">&#39;Target Population&#39;</span><span class="p">):</span>
+
+    <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;point_diff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">ref_x</span><span class="p">]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="n">ref_y</span><span class="p">]</span>
+    
+    <span class="n">min_cut_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">ref_x</span><span class="p">]),</span> <span class="n">percentil</span><span class="p">)</span>
+    <span class="n">min_cut_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">ref_y</span><span class="p">]),</span> <span class="n">percentil</span><span class="p">)</span>
+    
+    
+    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;point_diff_cut&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">ref_x</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">min_cut_x</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">ref_y</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">min_cut_y</span><span class="p">)</span>
+    
+    <span class="n">sns</span><span class="o">.</span><span class="n">stripplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">[[</span>
+            <span class="n">ref_x</span><span class="p">,</span> <span class="n">ref_y</span>
+        <span class="p">]],</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;v&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">6</span><span class="p">);</span>
+    
+    <span class="n">sns</span><span class="o">.</span><span class="n">violinplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">[[</span>
+            <span class="n">ref_x</span><span class="p">,</span> <span class="n">ref_y</span>
+        <span class="p">]],</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;v&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">6</span><span class="p">);</span>
+    
+    <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="p">[</span><span class="n">min_cut_x</span><span class="p">,</span> <span class="n">min_cut_x</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">);</span>
+    <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="o">-</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">min_cut_x</span><span class="o">+</span><span class="mf">0.4</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">min_cut_x</span><span class="p">))</span>
+    <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Metrics&#39;</span><span class="p">)</span>
+    
+    <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span> <span class="p">[</span><span class="mi">1</span><span class="o">-</span><span class="mf">0.4</span><span class="p">,</span> <span class="mi">1</span><span class="o">+</span><span class="mf">0.2</span><span class="p">],</span> <span class="p">[</span><span class="n">min_cut_y</span><span class="p">,</span> <span class="n">min_cut_y</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">);</span>
+    <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">min_cut_y</span><span class="o">+</span><span class="mf">0.6</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">min_cut_y</span><span class="p">))</span>
+    <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Metrics&#39;</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">ix</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">point_diff_cut</span><span class="p">]</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> 
+            <span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="n">ref_x</span><span class="p">],</span> <span class="n">item</span><span class="p">[</span><span class="n">ref_y</span><span class="p">]],</span>
+            <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span>
+        <span class="p">)</span>
+    
+    <span class="c1"># Distribution</span>
+    <span class="n">sns</span><span class="o">.</span><span class="n">kdeplot</span><span class="p">(</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[(</span><span class="n">data</span><span class="p">[</span><span class="n">ref_x</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">min_cut_x</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">data</span><span class="o">.</span><span class="n">point_diff_cut</span><span class="p">],</span> 
+        <span class="n">x</span> <span class="o">=</span> <span class="n">OS</span><span class="p">,</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+        <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Target Population&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">percentil</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">percentil</span><span class="p">),</span> <span class="n">t1</span><span class="o">=</span><span class="n">ref_x</span><span class="p">,</span> <span class="n">t2</span><span class="o">=</span><span class="n">ref_y</span><span class="p">),</span> 
+        <span class="n">fill</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span>
+    <span class="p">);</span>
+
+    <span class="n">sns</span><span class="o">.</span><span class="n">kdeplot</span><span class="p">(</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[(</span><span class="n">data</span><span class="p">[</span><span class="n">ref_x</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">min_cut_x</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">point_diff_cut</span> <span class="o">==</span> <span class="kc">False</span><span class="p">)],</span> 
+        <span class="n">x</span> <span class="o">=</span> <span class="n">OS</span><span class="p">,</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="s1">&#39;Hi Population&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">percentil</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">percentil</span><span class="p">),</span> <span class="n">t1</span><span class="o">=</span><span class="n">ref_x</span><span class="p">),</span>
+        <span class="n">fill</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+        <span class="n">color</span><span class="o">=</span><span class="s1">&#39;#5151bd&#39;</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="mf">0.05</span>
+    <span class="p">)</span>
+    
+    <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">();</span></div>
+
+<div class="viewcode-block" id="variable_change_percentil_summary"><a class="viewcode-back" href="../../../samecode.plot.html#samecode.plot.pyplot.variable_change_percentil_summary">[docs]</a><span class="k">def</span> <span class="nf">variable_change_percentil_summary</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ref_x</span><span class="p">,</span> <span class="n">ref_y</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="s1">&#39;event&#39;</span><span class="p">,</span> <span class="n">OS</span><span class="o">=</span><span class="s1">&#39;OS&#39;</span><span class="p">,</span> <span class="n">axs</span><span class="o">=</span><span class="p">[],</span> <span class="n">ref_x_lab</span><span class="o">=</span><span class="s1">&#39;TG&#39;</span><span class="p">):</span>
+    
+    <span class="n">percentiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">/</span><span class="mi">100</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">91</span><span class="p">,</span> <span class="mi">5</span><span class="p">)]</span>
+    <span class="n">perf</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">for</span> <span class="n">percentile</span> <span class="ow">in</span> <span class="n">percentiles</span><span class="p">:</span>
+    
+        <span class="n">min_cut_x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">ref_x</span><span class="p">]),</span> <span class="n">percentile</span><span class="p">)</span>
+        <span class="n">min_cut_y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">ref_y</span><span class="p">]),</span> <span class="n">percentile</span><span class="p">)</span>
+
+
+        <span class="n">target_group</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">ref_x</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">min_cut_x</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">ref_y</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">min_cut_y</span><span class="p">)</span>
+
+
+        <span class="c1"># Survival plot DeltaP vs &lt; upper quartile</span>
+        <span class="n">ref_y_lab</span> <span class="o">=</span> <span class="s1">&#39;High&#39;</span>
+        
+        <span class="n">svr</span> <span class="o">=</span> <span class="n">PlotSurvival</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">OS</span><span class="p">,</span> <span class="n">censor</span><span class="o">=</span><span class="n">event</span><span class="p">)</span>
+        
+        <span class="n">ix</span> <span class="o">=</span> <span class="n">target_group</span>
+        <span class="n">noix</span> <span class="o">=</span>   <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">ref_x</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">min_cut_x</span><span class="p">)</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">target_group</span>
+        
+        <span class="n">svr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ix</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ref_x_lab</span><span class="p">))</span>
+        <span class="n">svr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">noix</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ref_y_lab</span><span class="p">))</span>
+
+        <span class="n">ref</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ref_y_lab</span><span class="p">)</span>
+        <span class="n">tar</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ref_x_lab</span><span class="p">)</span>
+        <span class="n">svr</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">axs</span><span class="p">,</span> <span class="n">ref</span> <span class="o">=</span> <span class="n">ref</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="p">[</span><span class="n">ref</span><span class="p">,</span> <span class="n">tar</span><span class="p">],</span> <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="s1">&#39;#5151bd&#39;</span><span class="p">],</span> <span class="n">line_styles</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">],</span> <span class="n">table</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        
+        <span class="n">perf</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s2">&quot;Experiment&quot;</span><span class="p">:</span> <span class="n">ref_x_lab</span><span class="p">,</span> 
+            <span class="s2">&quot;Cutoff&quot;</span><span class="p">:</span> <span class="n">percentile</span><span class="p">,</span> 
+            <span class="s2">&quot;Condition&quot;</span><span class="p">:</span> <span class="s1">&#39;&gt;&#39;</span><span class="p">,</span>
+            <span class="s2">&quot;Reference&quot;</span><span class="p">:</span> <span class="n">ref</span><span class="p">,</span> 
+            <span class="s1">&#39;Target&#39;</span><span class="p">:</span> <span class="n">tar</span><span class="p">,</span> 
+            <span class="s1">&#39;HR&#39;</span><span class="p">:</span> <span class="n">svr</span><span class="o">.</span><span class="n">kmfs</span><span class="p">[</span><span class="n">tar</span><span class="p">][</span><span class="mi">3</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> 
+            <span class="s1">&#39;Pvalue&#39;</span><span class="p">:</span> <span class="n">svr</span><span class="o">.</span><span class="n">kmfs</span><span class="p">[</span><span class="n">tar</span><span class="p">][</span><span class="mi">3</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> 
+            <span class="s1">&#39;CI_Low&#39;</span><span class="p">:</span> <span class="n">svr</span><span class="o">.</span><span class="n">kmfs</span><span class="p">[</span><span class="n">tar</span><span class="p">][</span><span class="mi">3</span><span class="p">][</span><span class="mi">2</span><span class="p">],</span> 
+            <span class="s1">&#39;CI_High&#39;</span><span class="p">:</span> <span class="n">svr</span><span class="o">.</span><span class="n">kmfs</span><span class="p">[</span><span class="n">tar</span><span class="p">][</span><span class="mi">3</span><span class="p">][</span><span class="mi">3</span><span class="p">],</span> 
+            <span class="s1">&#39;Reference_population&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">svr</span><span class="o">.</span><span class="n">counts</span><span class="p">[</span><span class="mf">0.0</span><span class="p">][</span><span class="n">ref</span><span class="p">]),</span>
+            <span class="s1">&#39;Target_population&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">svr</span><span class="o">.</span><span class="n">counts</span><span class="p">[</span><span class="mf">0.0</span><span class="p">][</span><span class="n">tar</span><span class="p">]),</span>
+        <span class="p">})</span>
+        
+    
+    <span class="n">perf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">perf</span><span class="p">)</span>    
+    <span class="n">forestplot</span><span class="p">(</span><span class="n">perf</span><span class="p">,</span> <span class="n">axs</span><span class="o">=</span><span class="n">axs</span><span class="p">,</span> <span class="n">orderby</span><span class="o">=</span><span class="s1">&#39;Cutoff&#39;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">perf</span></div>
+
+<div class="viewcode-block" id="variable_survival_change"><a class="viewcode-back" href="../../../samecode.plot.html#samecode.plot.pyplot.variable_survival_change">[docs]</a><span class="k">def</span> <span class="nf">variable_survival_change</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="n">treat</span><span class="p">,</span> <span class="n">arm</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="s1">&#39;event&#39;</span><span class="p">,</span> <span class="n">OS</span><span class="o">=</span><span class="s1">&#39;OS&#39;</span><span class="p">,</span> <span class="n">axs</span><span class="o">=</span><span class="p">[],</span> <span class="n">run_name</span><span class="o">=</span><span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="n">low_p</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">high_p</span><span class="o">=</span><span class="mi">91</span><span class="p">):</span>
+    
+    <span class="n">percentiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">/</span><span class="mi">100</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">low_p</span><span class="p">,</span> <span class="n">high_p</span><span class="p">,</span> <span class="mi">5</span><span class="p">)]</span>
+    <span class="n">perf</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">for</span> <span class="n">percentile</span> <span class="ow">in</span> <span class="n">percentiles</span><span class="p">:</span>
+        <span class="n">svr</span> <span class="o">=</span> <span class="n">PlotSurvival</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">OS</span><span class="p">,</span> <span class="n">censor</span><span class="o">=</span><span class="n">event</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">treatment</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ref</span><span class="p">,</span> <span class="n">treat</span><span class="p">]:</span>
+            <span class="n">min_cut_tx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="n">arm</span><span class="p">]</span> <span class="o">==</span> <span class="n">treatment</span><span class="p">][</span><span class="n">var</span><span class="p">]),</span> <span class="n">percentile</span><span class="p">)</span>    
+        
+            <span class="n">ix</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">min_cut_tx</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">arm</span><span class="p">]</span> <span class="o">==</span> <span class="n">treatment</span><span class="p">)</span>
+            <span class="n">noix</span> <span class="o">=</span>   <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">var</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">min_cut_tx</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">arm</span><span class="p">]</span> <span class="o">==</span> <span class="n">treatment</span><span class="p">)</span>
+        
+            <span class="n">svr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ix</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> (H)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">treatment</span><span class="p">))</span>
+            <span class="n">svr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">noix</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> (L)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">treatment</span><span class="p">))</span>
+
+        
+        <span class="n">ref_</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> (H)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
+        <span class="n">tar</span>  <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> (H)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">treat</span><span class="p">)</span>
+        <span class="n">svr</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">axs</span><span class="p">,</span> <span class="n">ref</span> <span class="o">=</span> <span class="n">ref_</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="p">[</span><span class="n">ref_</span><span class="p">,</span> <span class="n">tar</span><span class="p">],</span> <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="s1">&#39;#5151bd&#39;</span><span class="p">],</span> <span class="n">line_styles</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">],</span> <span class="n">table</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        
+        <span class="n">perf</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s2">&quot;Experiment&quot;</span><span class="p">:</span> <span class="n">run_name</span><span class="p">,</span> 
+            <span class="s2">&quot;Cutoff&quot;</span><span class="p">:</span> <span class="n">percentile</span><span class="p">,</span> 
+            <span class="s2">&quot;Condition&quot;</span><span class="p">:</span> <span class="s1">&#39;&gt;&#39;</span><span class="p">,</span>
+            <span class="s2">&quot;Reference&quot;</span><span class="p">:</span> <span class="n">ref_</span><span class="p">,</span> 
+            <span class="s1">&#39;Target&#39;</span><span class="p">:</span> <span class="n">tar</span><span class="p">,</span> 
+            <span class="s1">&#39;HR&#39;</span><span class="p">:</span> <span class="n">svr</span><span class="o">.</span><span class="n">kmfs</span><span class="p">[</span><span class="n">tar</span><span class="p">][</span><span class="mi">3</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> 
+            <span class="s1">&#39;Pvalue&#39;</span><span class="p">:</span> <span class="n">svr</span><span class="o">.</span><span class="n">kmfs</span><span class="p">[</span><span class="n">tar</span><span class="p">][</span><span class="mi">3</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> 
+            <span class="s1">&#39;CI_Low&#39;</span><span class="p">:</span> <span class="n">svr</span><span class="o">.</span><span class="n">kmfs</span><span class="p">[</span><span class="n">tar</span><span class="p">][</span><span class="mi">3</span><span class="p">][</span><span class="mi">2</span><span class="p">],</span> 
+            <span class="s1">&#39;CI_High&#39;</span><span class="p">:</span> <span class="n">svr</span><span class="o">.</span><span class="n">kmfs</span><span class="p">[</span><span class="n">tar</span><span class="p">][</span><span class="mi">3</span><span class="p">][</span><span class="mi">3</span><span class="p">],</span> 
+            <span class="s1">&#39;Reference_population&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">svr</span><span class="o">.</span><span class="n">counts</span><span class="p">[</span><span class="mf">0.0</span><span class="p">][</span><span class="n">ref_</span><span class="p">]),</span>
+            <span class="s1">&#39;Target_population&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">svr</span><span class="o">.</span><span class="n">counts</span><span class="p">[</span><span class="mf">0.0</span><span class="p">][</span><span class="n">tar</span><span class="p">]),</span>
+        <span class="p">})</span>
+        
+    
+    <span class="n">perf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">perf</span><span class="p">)</span>    
+    <span class="n">forestplot</span><span class="p">(</span><span class="n">perf</span><span class="p">,</span> <span class="n">axs</span><span class="o">=</span><span class="n">axs</span><span class="p">,</span> <span class="n">orderby</span><span class="o">=</span><span class="s1">&#39;Cutoff&#39;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">perf</span></div>
+
+<div class="viewcode-block" id="variable_survival_change_2_metrics"><a class="viewcode-back" href="../../../samecode.plot.html#samecode.plot.pyplot.variable_survival_change_2_metrics">[docs]</a><span class="k">def</span> <span class="nf">variable_survival_change_2_metrics</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">var_x</span><span class="p">,</span> <span class="n">var_y</span><span class="p">,</span> <span class="n">treatment</span><span class="p">,</span> <span class="n">arm</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="s1">&#39;event&#39;</span><span class="p">,</span> <span class="n">OS</span><span class="o">=</span><span class="s1">&#39;OS&#39;</span><span class="p">,</span> <span class="n">axs</span><span class="o">=</span><span class="p">[],</span> <span class="n">run_name</span><span class="o">=</span><span class="s1">&#39;R&#39;</span><span class="p">,</span> <span class="n">low_p</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">high_p</span><span class="o">=</span><span class="mi">91</span><span class="p">):</span>
+    
+    <span class="n">percentiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">/</span><span class="mi">100</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">low_p</span><span class="p">,</span> <span class="n">high_p</span><span class="p">,</span> <span class="mi">5</span><span class="p">)]</span>
+    <span class="n">perf</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">for</span> <span class="n">percentile</span> <span class="ow">in</span> <span class="n">percentiles</span><span class="p">:</span>
+        <span class="n">svr</span> <span class="o">=</span> <span class="n">PlotSurvival</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">OS</span><span class="p">,</span> <span class="n">censor</span><span class="o">=</span><span class="n">event</span><span class="p">)</span>
+        
+        <span class="n">min_cut_tx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="n">arm</span><span class="p">]</span> <span class="o">==</span> <span class="n">treatment</span><span class="p">][</span><span class="n">var_x</span><span class="p">]),</span> <span class="n">percentile</span><span class="p">)</span>   
+        <span class="n">min_cut_ty</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="p">[</span><span class="n">arm</span><span class="p">]</span> <span class="o">==</span> <span class="n">treatment</span><span class="p">][</span><span class="n">var_y</span><span class="p">]),</span> <span class="n">percentile</span><span class="p">)</span>    
+    
+        <span class="n">ix</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">var_x</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">min_cut_tx</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">arm</span><span class="p">]</span> <span class="o">==</span> <span class="n">treatment</span><span class="p">)</span>
+        <span class="n">noix</span> <span class="o">=</span>   <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">var_y</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">min_cut_ty</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">arm</span><span class="p">]</span> <span class="o">==</span> <span class="n">treatment</span><span class="p">)</span>
+    
+        <span class="n">svr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ix</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> (H)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">var_x</span><span class="p">))</span>
+        <span class="n">svr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">noix</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> (H)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">var_y</span><span class="p">))</span>
+
+        
+        <span class="n">ref_</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> (H)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">var_x</span><span class="p">)</span>
+        <span class="n">tar</span>  <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> (H)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">var_y</span><span class="p">)</span>
+        <span class="n">svr</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">axs</span><span class="p">,</span> <span class="n">ref</span> <span class="o">=</span> <span class="n">ref_</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="p">[</span><span class="n">ref_</span><span class="p">,</span> <span class="n">tar</span><span class="p">],</span> <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="s1">&#39;#5151bd&#39;</span><span class="p">],</span> <span class="n">line_styles</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">],</span> <span class="n">table</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        
+        <span class="n">perf</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s2">&quot;Experiment&quot;</span><span class="p">:</span> <span class="n">run_name</span><span class="p">,</span> 
+            <span class="s2">&quot;Cutoff&quot;</span><span class="p">:</span> <span class="n">percentile</span><span class="p">,</span> 
+            <span class="s2">&quot;Condition&quot;</span><span class="p">:</span> <span class="s1">&#39;&gt;&#39;</span><span class="p">,</span>
+            <span class="s2">&quot;Reference&quot;</span><span class="p">:</span> <span class="n">ref_</span><span class="p">,</span> 
+            <span class="s1">&#39;Target&#39;</span><span class="p">:</span> <span class="n">tar</span><span class="p">,</span> 
+            <span class="s1">&#39;HR&#39;</span><span class="p">:</span> <span class="n">svr</span><span class="o">.</span><span class="n">kmfs</span><span class="p">[</span><span class="n">tar</span><span class="p">][</span><span class="mi">3</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> 
+            <span class="s1">&#39;Pvalue&#39;</span><span class="p">:</span> <span class="n">svr</span><span class="o">.</span><span class="n">kmfs</span><span class="p">[</span><span class="n">tar</span><span class="p">][</span><span class="mi">3</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> 
+            <span class="s1">&#39;CI_Low&#39;</span><span class="p">:</span> <span class="n">svr</span><span class="o">.</span><span class="n">kmfs</span><span class="p">[</span><span class="n">tar</span><span class="p">][</span><span class="mi">3</span><span class="p">][</span><span class="mi">2</span><span class="p">],</span> 
+            <span class="s1">&#39;CI_High&#39;</span><span class="p">:</span> <span class="n">svr</span><span class="o">.</span><span class="n">kmfs</span><span class="p">[</span><span class="n">tar</span><span class="p">][</span><span class="mi">3</span><span class="p">][</span><span class="mi">3</span><span class="p">],</span> 
+            <span class="s1">&#39;Reference_population&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">svr</span><span class="o">.</span><span class="n">counts</span><span class="p">[</span><span class="mf">0.0</span><span class="p">][</span><span class="n">ref_</span><span class="p">]),</span>
+            <span class="s1">&#39;Target_population&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">svr</span><span class="o">.</span><span class="n">counts</span><span class="p">[</span><span class="mf">0.0</span><span class="p">][</span><span class="n">tar</span><span class="p">]),</span>
+        <span class="p">})</span>
+        
+    
+    <span class="n">perf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">perf</span><span class="p">)</span>    
+    <span class="n">forestplot</span><span class="p">(</span><span class="n">perf</span><span class="p">,</span> <span class="n">axs</span><span class="o">=</span><span class="n">axs</span><span class="p">,</span> <span class="n">orderby</span><span class="o">=</span><span class="s1">&#39;Cutoff&#39;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">perf</span></div>
+
+<div class="viewcode-block" id="regplot_stats"><a class="viewcode-back" href="../../../samecode.plot.html#samecode.plot.pyplot.regplot_stats">[docs]</a><span class="k">def</span> <span class="nf">regplot_stats</span><span class="p">(</span><span class="n">mutation_counts</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="p">[],</span> <span class="n">y</span><span class="o">=</span><span class="p">[],</span> <span class="n">ax</span><span class="o">=</span><span class="p">[],</span> <span class="nb">filter</span><span class="o">=</span><span class="p">[],</span> <span class="n">label_reg</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">):</span>
+    <span class="n">slope</span><span class="p">,</span> <span class="n">intercept</span><span class="p">,</span> <span class="n">r_value</span><span class="p">,</span> <span class="n">p_value</span><span class="p">,</span> <span class="n">std_err</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">linregress</span><span class="p">(</span><span class="n">mutation_counts</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)[</span><span class="n">x</span><span class="p">],</span> <span class="n">mutation_counts</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)[</span><span class="n">y</span><span class="p">])</span>
+    
+    <span class="n">r_value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">mutation_counts</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)[</span><span class="n">x</span><span class="p">],</span> <span class="n">mutation_counts</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)[</span><span class="n">y</span><span class="p">])[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">r_value</span><span class="p">,</span> <span class="n">p_value</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">spearmanr</span><span class="p">(</span><span class="n">mutation_counts</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)[</span><span class="n">x</span><span class="p">],</span> <span class="n">mutation_counts</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)[</span><span class="n">y</span><span class="p">])</span>
+    
+    <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> = </span><span class="si">{:.2f}</span><span class="s2">*</span><span class="si">{}</span><span class="s2"> + </span><span class="si">{:.2f}</span><span class="se">\n</span><span class="s2">Spearman = </span><span class="si">{:.2f}</span><span class="se">\n</span><span class="s2">p = </span><span class="si">{:.2e}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">slope</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">intercept</span><span class="p">,</span> <span class="n">r_value</span><span class="p">,</span> <span class="n">p_value</span><span class="p">)</span> <span class="k">if</span> <span class="n">label_reg</span> <span class="o">==</span> <span class="kc">True</span> <span class="k">else</span> <span class="s2">&quot;Spearman = </span><span class="si">{:.2f}</span><span class="se">\n</span><span class="s2">p = </span><span class="si">{:.2e}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">r_value</span><span class="p">,</span> <span class="n">p_value</span><span class="p">)</span>
+
+    <span class="n">sns</span><span class="o">.</span><span class="n">regplot</span><span class="p">(</span>
+        <span class="n">y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> 
+        <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> 
+        <span class="n">data</span> <span class="o">=</span> <span class="n">mutation_counts</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span>
+        <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">label</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="n">color</span>
+    <span class="p">);</span></div>
+    
+<div class="viewcode-block" id="mutation_plot"><a class="viewcode-back" href="../../../samecode.plot.html#samecode.plot.pyplot.mutation_plot">[docs]</a><span class="k">def</span> <span class="nf">mutation_plot</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">classifier</span><span class="p">,</span> <span class="n">axs</span><span class="o">=</span><span class="p">[]):</span>
+    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;mut&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">Reference_Allele</span> <span class="o">+</span> <span class="s1">&#39;&gt;&#39;</span> <span class="o">+</span> <span class="n">data</span><span class="o">.</span><span class="n">Tumor_Allele_1</span>
+
+    <span class="n">sns</span><span class="o">.</span><span class="n">barplot</span><span class="p">(</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;mut&#39;</span><span class="p">,</span> <span class="n">classifier</span><span class="p">],</span> <span class="n">as_index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">()[[</span><span class="s1">&#39;mut&#39;</span><span class="p">,</span> <span class="n">classifier</span><span class="p">,</span> <span class="s1">&#39;counter&#39;</span><span class="p">]]</span> <span class="p">,</span>
+        <span class="n">x</span><span class="o">=</span><span class="s1">&#39;mut&#39;</span><span class="p">,</span>
+        <span class="n">y</span><span class="o">=</span><span class="s1">&#39;counter&#39;</span><span class="p">,</span>
+        <span class="n">hue</span><span class="o">=</span> <span class="n">classifier</span><span class="p">,</span>   
+        <span class="n">order</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;C&gt;A&#39;</span><span class="p">,</span> <span class="s1">&#39;C&gt;G&#39;</span><span class="p">,</span> <span class="s1">&#39;C&gt;T&#39;</span><span class="p">,</span>  <span class="s1">&#39;T&gt;A&#39;</span><span class="p">,</span> <span class="s1">&#39;T&gt;C&#39;</span><span class="p">,</span> <span class="s1">&#39;T&gt;G&#39;</span><span class="p">],</span>
+        <span class="n">ax</span> <span class="o">=</span> <span class="n">axs</span>
+    <span class="p">);</span></div>
+
+<div class="viewcode-block" id="variable_change_interval"><a class="viewcode-back" href="../../../samecode.plot.html#samecode.plot.pyplot.variable_change_interval">[docs]</a><span class="k">def</span> <span class="nf">variable_change_interval</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">axs</span><span class="o">=</span><span class="p">[],</span> <span class="n">x_lo</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">x_hi</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">var_x</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">var_y</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">population</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">OS</span><span class="o">=</span><span class="s1">&#39;OS&#39;</span><span class="p">,</span> <span class="n">event</span><span class="o">=</span><span class="s1">&#39;event&#39;</span><span class="p">):</span>
+<span class="w">    </span>
+<span class="w">    </span><span class="sd">&#39;&#39;&#39; From two surrogate metrics x and y, take an interval on x [x_lo, x_hi]. </span>
+<span class="sd">    Then, sort the difference per patient between the two distributions and &#39;&#39;&#39;</span>
+    
+    <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;point_diff&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">var_x</span><span class="p">]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="n">var_y</span><span class="p">]</span>
+    
+    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;point_diff_cut&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">var_x</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">x_lo</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">var_x</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">x_hi</span><span class="p">)</span>
+    
+    <span class="n">subset</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">data</span><span class="o">.</span><span class="n">point_diff_cut</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">subset</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;point_diff&#39;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="n">subset</span><span class="p">[</span><span class="s1">&#39;groups&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="kc">True</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">subset</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="n">population</span> <span class="k">else</span> <span class="kc">False</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">subset</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+    <span class="n">subset</span><span class="p">[</span><span class="s1">&#39;negative_groups&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="kc">True</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">subset</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">population</span><span class="p">)</span> <span class="k">else</span> <span class="kc">False</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">subset</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])]</span>
+    
+    <span class="n">sns</span><span class="o">.</span><span class="n">stripplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">[[</span>
+            <span class="n">var_x</span><span class="p">,</span> <span class="n">var_y</span>
+        <span class="p">]],</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;v&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">6</span><span class="p">);</span>
+    
+    <span class="n">sns</span><span class="o">.</span><span class="n">violinplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">[[</span>
+            <span class="n">var_x</span><span class="p">,</span> <span class="n">var_y</span>
+        <span class="p">]],</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;v&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">6</span><span class="p">);</span>
+    
+    <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="p">[</span><span class="n">x_lo</span><span class="p">,</span> <span class="n">x_lo</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">);</span>
+    <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="o">-</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">x_lo</span><span class="o">+</span><span class="mf">1.6</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x_lo</span><span class="p">))</span>
+    <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Metrics&#39;</span><span class="p">)</span>
+    
+    <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span> <span class="p">[</span><span class="o">-</span><span class="mf">0.4</span><span class="p">,</span> <span class="o">+</span><span class="mf">0.2</span><span class="p">],</span> <span class="p">[</span><span class="n">x_hi</span><span class="p">,</span> <span class="n">x_hi</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">);</span>
+    <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="o">-</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">x_hi</span><span class="o">+</span><span class="mf">1.6</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{:.2f}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">x_hi</span><span class="p">))</span>
+    <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Metrics&#39;</span><span class="p">)</span>
+    
+    <span class="k">for</span> <span class="n">ix</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">subset</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">item</span><span class="o">.</span><span class="n">groups</span><span class="p">:</span> <span class="k">continue</span>
+            
+        <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> 
+            <span class="p">[</span><span class="n">item</span><span class="p">[</span><span class="n">var_x</span><span class="p">],</span> <span class="n">item</span><span class="p">[</span><span class="n">var_y</span><span class="p">]],</span>
+            <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span>
+        <span class="p">)</span>
+    
+    <span class="c1"># Survival</span>
+    <span class="n">svr</span> <span class="o">=</span> <span class="n">PlotSurvival</span><span class="p">(</span><span class="n">subset</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">OS</span><span class="p">,</span> <span class="n">censor</span><span class="o">=</span><span class="n">event</span><span class="p">)</span>
+    
+    <span class="n">ix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">subset</span><span class="o">.</span><span class="n">groups</span><span class="p">)</span>
+    <span class="n">noix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">subset</span><span class="o">.</span><span class="n">negative_groups</span><span class="p">)</span>
+
+    <span class="n">svr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ix</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;Flip&#39;</span><span class="p">))</span>
+    <span class="n">svr</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">noix</span><span class="p">,</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;No Flip&#39;</span><span class="p">))</span>
+
+    <span class="n">ref</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;Flip&#39;</span><span class="p">)</span>
+    <span class="n">tar</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;No Flip&#39;</span><span class="p">)</span>
+    <span class="n">svr</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">ref</span> <span class="o">=</span> <span class="n">ref</span><span class="p">,</span> <span class="n">targets</span><span class="o">=</span><span class="p">[</span><span class="n">ref</span><span class="p">,</span> <span class="n">tar</span><span class="p">],</span> <span class="n">colors</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="s1">&#39;#5151bd&#39;</span><span class="p">],</span> <span class="n">line_styles</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">],</span> <span class="n">table</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">subset</span> </div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Gustavo Arango.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

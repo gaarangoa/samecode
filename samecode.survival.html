@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>samecode.survival package &mdash; samecode 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="samecode.signatures package" href="samecode.signatures.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            samecode
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">samecode</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="samecode.html">samecode package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="samecode.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="samecode.cbio.html">samecode.cbio package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="samecode.dataframe.html">samecode.dataframe package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="samecode.datasets.html">samecode.datasets package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="samecode.fonts.html">samecode.fonts package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="samecode.logger.html">samecode.logger package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="samecode.plot.html">samecode.plot package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="samecode.preprocess.html">samecode.preprocess package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="samecode.random.html">samecode.random package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="samecode.signatures.html">samecode.signatures package</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">samecode.survival package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="samecode.html#submodules">Submodules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="samecode.html#module-samecode.random">samecode.random module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="samecode.html#module-samecode">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">samecode</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">samecode</a></li>
+          <li class="breadcrumb-item"><a href="samecode.html">samecode package</a></li>
+      <li class="breadcrumb-item active">samecode.survival package</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/samecode.survival.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="section" id="samecode-survival-package">
+<h1>samecode.survival package<a class="headerlink" href="#samecode-survival-package" title="Permalink to this heading"></a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading"></a></h2>
+</div>
+<div class="section" id="module-samecode.survival.plot">
+<span id="samecode-survival-plot-module"></span><h2>samecode.survival.plot module<a class="headerlink" href="#module-samecode.survival.plot" title="Permalink to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="samecode.survival.plot.KMPlot">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">samecode.survival.plot.</span></span><span class="sig-name descname"><span class="pre">KMPlot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/samecode/survival/plot.html#KMPlot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#samecode.survival.plot.KMPlot" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="samecode.survival.plot.KMPlot.compare">
+<span class="sig-name descname"><span class="pre">compare</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/samecode/survival/plot.html#KMPlot.compare"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#samecode.survival.plot.KMPlot.compare" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="samecode.survival.plot.KMPlot.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/samecode/survival/plot.html#KMPlot.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#samecode.survival.plot.KMPlot.fit" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="samecode.survival.plot.KMPlot.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/samecode/survival/plot.html#KMPlot.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#samecode.survival.plot.KMPlot.plot" title="Permalink to this definition"></a></dt>
+<dd><p>Plot the Kaplan-Meier survival curves.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>labels (list, optional): Labels to plot. Default is None.</p></li>
+<li><p>display_labels (list, optional): Labels to display. Default is None.</p></li>
+<li><p>ax (matplotlib.axes.Axes, optional): Matplotlib axes object. Default is False.</p></li>
+<li><p>colors (list or str, optional): Colors for each label. Default is determined by sns.color_palette.</p></li>
+<li><p>linestyle (list, optional): Line styles for each label. Default is [‘-‘]*len(plot_labels).</p></li>
+<li><p>xy_font_size (int, optional): Font size for x and y axis labels. Default is 12.</p></li>
+<li><p>label_height_adj (float, optional): Adjustment for space between labels on the y-axis. Default is 0.05.</p></li>
+<li><p>template_color (str, optional): Color for template. Default is ‘black’.</p></li>
+<li><p>comparisons (list, optional): List of comparisons between two curves. Default is [].</p></li>
+<li><p>title_weight (str, optional): Font weight for title. Default is ‘normal’.</p></li>
+<li><p>title_size (int, optional): Font size for title. Default is 14.</p></li>
+<li><p>hr_color (str, optional): Color for hazard ratio layer. Default is determined by self.colors.</p></li>
+<li><p>x_legend (float, optional): X-coordinate for legend. Default is 0.15.</p></li>
+<li><p>y_legend (float, optional): Y-coordinate for legend. Default is 0.95.</p></li>
+<li><p>legend_font_size (int, optional): Font size for legend. Default is 10.</p></li>
+<li><p>show_censor (bool, optional): Whether to show censor. Default is True.</p></li>
+<li><p>ylabel (str, optional): Label for y-axis. Default is ‘Survival Probability’.</p></li>
+<li><p>xlabel (str, optional): Label for x-axis. Default is ‘Timeline’.</p></li>
+<li><p>ci_show (bool, optional): Whether to show confidence interval. Default is False.</p></li>
+<li><p>label_weight (str, optional): Font weight for labels. Default is ‘bold’.</p></li>
+<li><p>x_hr_legend (float, optional): X-coordinate for hazard ratio legend. Default is 0.0.</p></li>
+<li><p>y_hr_legend (float, optional): Y-coordinate for hazard ratio legend. Default is -0.3.</p></li>
+<li><p>hr_font_size (int, optional): Font size for hazard ratio legend. Default is 10.</p></li>
+<li><p>saturation (float, optional): Saturation level for colors. Default is 1.0.</p></li>
+<li><p>linewidth (float, optional): Line width for the curves. Default is 1.5.</p></li>
+<li><p>palette (str, optional): Palette for color selection. Default is ‘Paired’.</p></li>
+<li><p>show_cesor (bool, optional): Whether to show censor. Default is True.</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>ax: Matplotlib axes object.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="samecode.survival.plot.PlotSurvival">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">samecode.survival.plot.</span></span><span class="sig-name descname"><span class="pre">PlotSurvival</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">censor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/samecode/survival/plot.html#PlotSurvival"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#samecode.survival.plot.PlotSurvival" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<blockquote>
+<div><p>time: 
+censor:</p>
+</div></blockquote>
+<dl class="py method">
+<dt class="sig sig-object py" id="samecode.survival.plot.PlotSurvival.add">
+<span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/samecode/survival/plot.html#PlotSurvival.add"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#samecode.survival.plot.PlotSurvival.add" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="samecode.survival.plot.PlotSurvival.hazard">
+<span class="sig-name descname"><span class="pre">hazard</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/samecode/survival/plot.html#PlotSurvival.hazard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#samecode.survival.plot.PlotSurvival.hazard" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="samecode.survival.plot.PlotSurvival.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_styles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'-'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bold'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labelspacing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bbox</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[-0.0,</span> <span class="pre">-0.38,</span> <span class="pre">1,</span> <span class="pre">0.2]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lbox</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.05,</span> <span class="pre">0.01]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/samecode/survival/plot.html#PlotSurvival.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#samecode.survival.plot.PlotSurvival.plot" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="samecode.survival.plot.PlotSurvival.table">
+<span class="sig-name descname"><span class="pre">table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/samecode/survival/plot.html#PlotSurvival.table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#samecode.survival.plot.PlotSurvival.table" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="samecode.survival.plot.PrettyPlotSurvival">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">samecode.survival.plot.</span></span><span class="sig-name descname"><span class="pre">PrettyPlotSurvival</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">censor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/samecode/survival/plot.html#PrettyPlotSurvival"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#samecode.survival.plot.PrettyPlotSurvival" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<blockquote>
+<div><p>time: 
+censor:</p>
+</div></blockquote>
+<dl class="py method">
+<dt class="sig sig-object py" id="samecode.survival.plot.PrettyPlotSurvival.add">
+<span class="sig-name descname"><span class="pre">add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/samecode/survival/plot.html#PrettyPlotSurvival.add"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#samecode.survival.plot.PrettyPlotSurvival.add" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="samecode.survival.plot.PrettyPlotSurvival.hazard">
+<span class="sig-name descname"><span class="pre">hazard</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/samecode/survival/plot.html#PrettyPlotSurvival.hazard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#samecode.survival.plot.PrettyPlotSurvival.hazard" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="samecode.survival.plot.PrettyPlotSurvival.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_styles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'-'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_weight</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bold'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labelspacing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bbox</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[-0.0,</span> <span class="pre">-0.38,</span> <span class="pre">1,</span> <span class="pre">0.2]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">medians_offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels_offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'white'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/samecode/survival/plot.html#PrettyPlotSurvival.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#samecode.survival.plot.PrettyPlotSurvival.plot" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="samecode.survival.plot.PrettyPlotSurvival.table">
+<span class="sig-name descname"><span class="pre">table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">axs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/samecode/survival/plot.html#PrettyPlotSurvival.table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#samecode.survival.plot.PrettyPlotSurvival.table" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="samecode.survival.plot.compute_char_positions_ascii">
+<span class="sig-prename descclassname"><span class="pre">samecode.survival.plot.</span></span><span class="sig-name descname"><span class="pre">compute_char_positions_ascii</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/samecode/survival/plot.html#compute_char_positions_ascii"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#samecode.survival.plot.compute_char_positions_ascii" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="samecode.survival.plot.cox_functions">
+<span class="sig-prename descclassname"><span class="pre">samecode.survival.plot.</span></span><span class="sig-name descname"><span class="pre">cox_functions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'label'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">control_arm_label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'event'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/samecode/survival/plot.html#cox_functions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#samecode.survival.plot.cox_functions" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="samecode.survival.plot.fix_string">
+<span class="sig-prename descclassname"><span class="pre">samecode.survival.plot.</span></span><span class="sig-name descname"><span class="pre">fix_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">m</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/samecode/survival/plot.html#fix_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#samecode.survival.plot.fix_string" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="samecode.survival.plot.forestplot">
+<span class="sig-prename descclassname"><span class="pre">samecode.survival.plot.</span></span><span class="sig-name descname"><span class="pre">forestplot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">perf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(8,</span> <span class="pre">3)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hr'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hr_hi'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lo</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hr_lo'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/samecode/survival/plot.html#forestplot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#samecode.survival.plot.forestplot" title="Permalink to this definition"></a></dt>
+<dd><p>Plot a forest plot.</p>
+<dl class="simple">
+<dt>Parameters:</dt><dd><ul class="simple">
+<li><p>perf (DataFrame): Dataframe containing performance data.</p></li>
+<li><p>figsize (tuple, optional): Figure size. Default is (8, 3).</p></li>
+<li><p>ax (matplotlib.axes.Axes, optional): Matplotlib axes object. Default is an empty list [].</p></li>
+<li><p>hr (str, optional): Column name for hazard ratio. Default is ‘hr’.</p></li>
+<li><p>hi (str, optional): Column name for upper confidence interval. Default is ‘hr_hi’.</p></li>
+<li><p>lo (str, optional): Column name for lower confidence interval. Default is ‘hr_lo’.</p></li>
+<li><p>marker (str, optional): Marker style. Default is ‘D’.</p></li>
+<li><p>marker_s (int, optional): Marker size. Default is 80.</p></li>
+<li><p>marker_edgecolor (str, optional): Marker edge color. Default is ‘#000000’.</p></li>
+<li><p>marker_c (str, optional): Marker color. Default is ‘#000000’.</p></li>
+<li><p>label_fontsize (int, optional): Font size for labels. Default is 10.</p></li>
+<li><p>table_fontsize (int, optional): Font size for table. Default is 10.</p></li>
+<li><p>xlabel (str, optional): Label for x-axis. Default is ‘Hazard Ratio’.</p></li>
+<li><p>xlim (list, optional): Limits for x-axis. Default is [0.25, 1.5].</p></li>
+<li><p>variable (str, optional): Column name for variable. Default is ‘cluster’.</p></li>
+<li><p>xticks (list, optional): Tick positions for x-axis. Default is None.</p></li>
+<li><p>xticks_labelsize (int, optional): Font size for x-axis ticks. Default is 10.</p></li>
+<li><p>N1 (str, optional): Name for the first group. Default is ‘N1’.</p></li>
+<li><p>N2 (str, optional): Name for the second group. Default is ‘N2’.</p></li>
+<li><p>sort_by (str, optional): Column name for sorting. Default is False.</p></li>
+<li><p>population (str, optional): Column name for population. Default is None.</p></li>
+<li><p>variables (set, optional): Set of variables. Default is set(perf[variable].values).</p></li>
+<li><p>variable_shapes (dict, optional): Dictionary mapping variables to marker shapes. Default is {variable: marker}.</p></li>
+<li><p>populations (set, optional): Set of populations. Default is set(perf[population].values).</p></li>
+<li><p>population_name (str, optional): Column name for population name. Default is None.</p></li>
+<li><p>population_colors (dict, optional): Dictionary mapping populations to colors. Default is {population: ‘black’}.</p></li>
+<li><p>group (str, optional): Column name for group. Default is None.</p></li>
+<li><p>groups (set, optional): Set of groups. Default is set(perf[group].values) if group else [np.nan].</p></li>
+<li><p>offset (int, optional): Offset value. Default is 1.</p></li>
+<li><p>offset2 (float, optional): Another offset value. Default is 0.2.</p></li>
+<li><p>population_label_fixed_position (float, optional): Fixed position for population label. Default is None.</p></li>
+<li><p>population_label_offset (float, optional): Offset for population label. Default is 0.1.</p></li>
+<li><p>population_label_fontsize (int, optional): Font size for population label. Default is 10.</p></li>
+<li><p>xlabel_offset (float, optional): Offset for x-axis label. Default is xlim[1].</p></li>
+<li><p>ylabel_offset (float, optional): Offset for y-axis label. Default is 0.</p></li>
+<li><p>ylabel_align (str, optional): Alignment for y-axis label. Default is ‘left’.</p></li>
+<li><p>legend (bool, optional): Whether to show legend. Default is False.</p></li>
+<li><p>variable_names (list, optional): List of variable names. Default is variables.</p></li>
+<li><p>legend_xoffset (float, optional): X offset for legend. Default is xlim[1] / 2.</p></li>
+<li><p>legend_yoffset (float, optional): Y offset for legend. Default is 0.</p></li>
+</ul>
+</dd>
+<dt>Returns:</dt><dd><ul class="simple">
+<li><p>ax: Matplotlib axes object.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="samecode.survival.plot.get_end_position">
+<span class="sig-prename descclassname"><span class="pre">samecode.survival.plot.</span></span><span class="sig-name descname"><span class="pre">get_end_position</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/samecode/survival/plot.html#get_end_position"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#samecode.survival.plot.get_end_position" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="samecode.survival.plot.kmf_survival_functions">
+<span class="sig-prename descclassname"><span class="pre">samecode.survival.plot.</span></span><span class="sig-name descname"><span class="pre">kmf_survival_functions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">predictor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'label'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iteration_column</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'event'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/samecode/survival/plot.html#kmf_survival_functions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#samecode.survival.plot.kmf_survival_functions" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieve all KM survival functions using input data</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="samecode.survival.plot.median_plot_survival">
+<span class="sig-prename descclassname"><span class="pre">samecode.survival.plot.</span></span><span class="sig-name descname"><span class="pre">median_plot_survival</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kmfs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cox</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'#573411'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_medians</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linecolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.25</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label_font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hr_font_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hr_label_offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-0.03</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">median_time_offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">median_time_fontsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/samecode/survival/plot.html#median_plot_survival"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#samecode.survival.plot.median_plot_survival" title="Permalink to this definition"></a></dt>
+<dd><p>Plot survival for multiple iterations of the data. Training / Testing splits.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="samecode.survival.plot.set_template">
+<span class="sig-prename descclassname"><span class="pre">samecode.survival.plot.</span></span><span class="sig-name descname"><span class="pre">set_template</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/samecode/survival/plot.html#set_template"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#samecode.survival.plot.set_template" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="samecode.survival.plot.simple_survival_plot">
+<span class="sig-prename descclassname"><span class="pre">samecode.survival.plot.</span></span><span class="sig-name descname"><span class="pre">simple_survival_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">label</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">score</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/samecode/survival/plot.html#simple_survival_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#samecode.survival.plot.simple_survival_plot" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-samecode.survival">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-samecode.survival" title="Permalink to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="samecode.survival.extract_kmstats">
+<span class="sig-prename descclassname"><span class="pre">samecode.survival.</span></span><span class="sig-name descname"><span class="pre">extract_kmstats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">labels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">1]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/samecode/survival.html#extract_kmstats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#samecode.survival.extract_kmstats" title="Permalink to this definition"></a></dt>
+<dd><p>Extract a table with km statistics on a given set of clusters or features present in the data</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>data (dataframe): pandas dataframe with the data.
+features (list): list of features to compute the KM stats.
+time (str): time column.
+event (str): event column.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="samecode.signatures.html" class="btn btn-neutral float-left" title="samecode.signatures package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Gustavo Arango.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
