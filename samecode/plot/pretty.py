@@ -48,9 +48,15 @@ def heatmap(df, ax, groupby=None, y_cut=[11, 22, 27], columns=None, **kwargs):
     vmin = kwargs.get('vmin', -1)
     vmax = kwargs.get('vmax', 1)
     center = kwargs.get('center', 0)
+    order = kwargs.get('order', list(set(df[groupby])) )
+    
+    df = df.copy()
+    df[groupby] = df[groupby].astype("category")
+    df[groupby] = df[groupby].cat.set_categories(order)
 
     sns.heatmap(
-        df.sort_values(groupby).reset_index(drop=True)[columns].T, 
+        df.sort_values(groupby).reset_index(drop=True)[columns].T,
+        # df[columns].T,
         vmin=vmin, vmax=vmax, center=center, ax=ax, linewidths=0,
         cbar_kws={'shrink': 0.3, 'aspect': 20},
     )

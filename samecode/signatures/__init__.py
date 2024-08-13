@@ -53,7 +53,7 @@ def median_aggregation(data, signatures={}):
     return df
 
 
-def median_aggregation_df(data, signatures={}):
+def median_aggregation_df_old(data, signatures={}):
     '''
 
     **Summary**: Computes the median of a list of gene expressions for each sample in a dataset.
