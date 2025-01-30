@@ -27,7 +27,7 @@ def subplots(**kwargs):
     h = kwargs.get("h", 4)
 
     return_f = kwargs.get("return_f", False)
-    set_font(kwargs.get('font', 'arial'))
+    set_font(kwargs.get('font', 'poppins'))
     plt.rcParams['figure.facecolor'] = kwargs.get('facecolor', 'white')
 
     f = plt.figure(constrained_layout=True,  figsize=(w, h))
@@ -51,8 +51,8 @@ def clear_plot(ax, **kwargs):
     ax.spines['right'].set_visible(False)
     ax.spines['top'].set_visible(False)
     ax.spines['bottom'].set_visible(False)
-    ax.tick_params(axis = "y", which = "both", left = False, right = False)
-    ax.tick_params(axis = "x", which = "both", left = False, right = False)
+    ax.tick_params(axis = "y", which = "both", left = False, right = False, bottom=False)
+    ax.tick_params(axis = "x", which = "both", left = False, right = False, bottom=False)
     ax.set_yticklabels([])
     ax.set_xticklabels([])
 

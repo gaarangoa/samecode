@@ -17,14 +17,9 @@ import itertools
 import logging
 import sys
 
+logging.basicConfig(format='%(levelname)s\t%(asctime)s\t%(message)s')
 logger = logging.getLogger()
 logger.setLevel(logging.ERROR)
-
-handler = logging.StreamHandler(sys.stdout)
-handler.setLevel(logging.ERROR)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
 
 from lifelines import KaplanMeierFitter
 import seaborn as sns
@@ -129,6 +124,7 @@ class KMPlot():
         
         self.colors = {}
         self.label__ = label
+        self.plot_type = kwargs.get('plot_type', 'survival')
         
         self.fit(data, time, event, label, **kwargs)
     
@@ -149,9 +145,9 @@ class KMPlot():
                 hr_label = '{} - {}: '.format(tar, ref)
 
             x = self.data[self.data.__label__.isin([tar, ref])][[self.time, self.event, '__label__']].copy().reset_index(drop=True)
-            x.__label__.replace(ref, 0, inplace=True)
-            x.__label__.replace(tar, 1, inplace=True)
-            x.__label__ = x.__label__.astype(float)
+            labs__ = {ref: 0, tar: 1}
+            numerical_label = [labs__[i] for i in x.__label__]
+            x['__label__'] = numerical_label
 
             cph = CoxPHFitter().fit(x, duration_col = self.time, event_col = self.event) 
             cph = cph.summary[['exp(coef)', 'p', 'exp(coef) lower 95%', 'exp(coef) upper 95%']].reset_index().to_dict()
@@ -271,14 +267,25 @@ class KMPlot():
         for lx, label_ in enumerate(plot_labels):
             label_max_l.append(self.label_names_size[label_])
             self.colors[label_] = colors[lx]
-            self.kmfs[label_].plot(
-                ci_show=kwargs.get('ci_show', False), 
-                show_censors=kwargs.get("show_censor", True),
-                color = colors[lx],
-                linestyle = linestyle[lx],
-                linewidth = kwargs.get('linewidth', 1.5),
-                ax=ax
-            )
+
+            if self.plot_type == 'survival':
+                self.kmfs[label_].plot(
+                    ci_show=kwargs.get('ci_show', False), 
+                    show_censors=kwargs.get("show_censor", True),
+                    color = colors[lx],
+                    linestyle = linestyle[lx],
+                    linewidth = kwargs.get('linewidth', 1.5),
+                    ax=ax
+                )
+            if self.plot_type == 'cumulative_density':
+                self.kmfs[label_].plot_cumulative_density(
+                    ci_show=kwargs.get('ci_show', False), 
+                    show_censors=kwargs.get("show_censor", True),
+                    color = colors[lx],
+                    linestyle = linestyle[lx],
+                    linewidth = kwargs.get('linewidth', 1.5),
+                    ax=ax
+                )
             
             # median survival time
             ax.axvline(self.kmfs[label_].median_survival_time_, 0, 0.5, ls = '--', color = self.colors[label_], lw = 1)
@@ -980,7 +987,6 @@ def forestplot(data, **kwargs):
                 ax.hlines(vix + gix, i[lo], i[hi], color=icolor, linewidth=kwargs.get('linewidth', 1))
                 ax.scatter(i[hr], vix + gix, c=icolor, marker=marker, s=s, zorder=100, edgecolors='white')
 
-                ax.axvline(1, color='gray', zorder=0, linestyle='--')
                 ax.set_xlabel(xlabel, fontweight='bold', fontsize=label_fontsize)
 
                 ttx = kwargs.get('xtable_offset', xlim[0])
@@ -1010,6 +1016,7 @@ def forestplot(data, **kwargs):
             color='black'
         )            
 
+    ax.axvline(1, color=kwargs.get('one_line_color', 'gray'), zorder=0, linestyle='--')
     ax.set_xticks(xticks)
     ax.tick_params(axis='x', labelsize=xticks_labelsize)
     ax.set_xlim(xlim);
