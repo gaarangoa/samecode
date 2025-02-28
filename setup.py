@@ -9,5 +9,10 @@ setup(
     packages=find_packages(),
     install_requires=[
         # List your module's dependencies here
-    ]
+    ],
+    entry_points={
+        'console_scripts': [
+            'generate_project=samecode.project_manager.create_project:main',
+        ],
+    },
 )
