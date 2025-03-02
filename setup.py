@@ -7,6 +7,10 @@ setup(
     author_email='',
     description='everyday tools',
     packages=find_packages(),
+    include_package_data=True,
+    package_data = {
+        'samecode.fonts': ['*.tff'],
+    },
     install_requires=[
         # List your module's dependencies here
     ],
