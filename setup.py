@@ -9,7 +9,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     package_data = {
-        'samecode.fonts': ['*.tff'],
+        'samecode.fonts': ['*.ttf'],
     },
     install_requires=[
         # List your module's dependencies here
