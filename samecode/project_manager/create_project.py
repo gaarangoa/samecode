@@ -25,6 +25,10 @@ def main():
     ts = str(datetime.datetime.now())
     path = args.path + '/ID-'+ts.replace(' ', '-').replace(':', '-').replace('-', '-').replace('.', '-')
 
+    name = input('enter project name')
+    description = input('enter project description')
+    tags = input('enter project keywords')
+
     logger.info(f'project directory: {path}')
     logger.info('''
     under ./environment/ make sure to update the yaml file with the necessary information
@@ -43,6 +47,9 @@ def main():
                     'environment': None,
                 },
                 'model_card': {
+                    'name': name,
+                    'description': description,
+                    'tags': tags,
                     'version': ts,
                     'framework': None,
                     'data': None,
