@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np 
 
-def make_dataset(study, base_path='/scratch/kmvr819/data/cbioportal/datahub/public', **kwargs):
+def make_dataset(study, base_path='./cbioportal/datahub/public', **kwargs):
     sample = pd.read_csv('{}/{}//data_clinical_sample.txt'.format(base_path, study), sep='\t', comment='#')
     patient = pd.read_csv('{}/{}/data_clinical_patient.txt'.format(base_path, study), sep='\t', comment='#')
 
