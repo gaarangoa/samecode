@@ -25,9 +25,9 @@ def main():
     ts = str(datetime.datetime.now())
     path = args.path + '/ID-'+ts.replace(' ', '-').replace(':', '-').replace('-', '-').replace('.', '-')
 
-    name = input('enter project name')
-    description = input('enter project description')
-    tags = input('enter project keywords')
+    name = input('enter project name: ')
+    description = input('enter project description: ')
+    tags = input('enter project keywords: ')
 
     logger.info(f'project directory: {path}')
     logger.info('''
@@ -46,7 +46,7 @@ def main():
                 'execution': {
                     'environment': None,
                 },
-                'model_card': {
+                'project_card': {
                     'name': name,
                     'description': description,
                     'tags': tags,
