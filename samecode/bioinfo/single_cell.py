@@ -9,6 +9,7 @@ def pseudobulk_tpm(
     length_key_id: str = 'ensembl_id',
     layer=None,
     minimum_cells: int = 1,
+    is_umi=True
 ):
     adata.var_names = adata.var[length_key_id]
     gene_lengths = pd.DataFrame(adata.var[length_key])
