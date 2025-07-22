@@ -52,8 +52,9 @@ def pseudobulk_tpm(
     )
 
     # Convert counts → RPK
-    lengths_kb = gene_lengths.loc[adata.var_names].values / 1000.0
-    rpk = summed_df.divide(lengths_kb, axis=0)
+    if is_umi: 
+        lengths_kb = gene_lengths.loc[adata.var_names].values / 1000.0
+        rpk = summed_df.divide(lengths_kb, axis=0)
 
     # Convert RPK → TPM
     scale = rpk.sum(axis=0) / 1e6
