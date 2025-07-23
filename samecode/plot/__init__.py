@@ -10,8 +10,8 @@ def plot_arrows(data, **kwargs):
     color = kwargs.get('color', 'black')
     
     for ix, i in data.iterrows():
-        ax.plot(i[x1], i[y1], 'ro', color='white', alpha=0)
-        ax.plot(i[x2], i[y2], 'ro', color='white', alpha=0)
+        ax.plot(i[x1], i[y1], color='white', alpha=0)
+        ax.plot(i[x2], i[y2], color='white', alpha=0)
 
         ax.annotate('', xy=(i[x2], i[y2]), xytext=(i[x1], i[y1]), arrowprops= {'arrowstyle': '->', 'color': color})
 
